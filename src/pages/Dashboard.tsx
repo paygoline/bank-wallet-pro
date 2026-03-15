@@ -276,7 +276,10 @@ const Dashboard = () => {
       </div>
 
       {/* BUY MINER */}
-      <Button className="w-full h-12 mb-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl flex items-center justify-center gap-2">
+      <Button
+        onClick={() => navigate("/miner-plans")}
+        className="w-full h-12 mb-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl flex items-center justify-center gap-2"
+      >
         <TrendingUp className="w-5 h-5" />
         Upgrade Miner Plan
       </Button>
