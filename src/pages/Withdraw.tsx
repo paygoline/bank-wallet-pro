@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
+import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Withdraw = () => {
   const [code, setCode] = useState("");
