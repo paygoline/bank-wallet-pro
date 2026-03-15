@@ -1,11 +1,14 @@
-import { CreditCard, Send, Landmark, ShieldCheck } from "lucide-react";
+import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Pickaxe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ProfessionalLoader from "@/components/ProfessionalLoader";
+import { Progress } from "@/components/ui/progress";
+
+const MINING_COOLDOWN_KEY = "last_mining_timestamp";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -13,112 +16,338 @@ const Dashboard = () => {
   const { accountName = "Account Name", accountNumber = "Account Number" } = location.state || {};
   const [showMineDialog, setShowMineDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
-  const [walletBalance, setWalletBalance] = useState(0);
+  const [walletBalance, setWalletBalance] = useState(() => {
+    const saved = localStorage.getItem("wallet_balance");
+    return saved ? parseFloat(saved) : 0;
+  });
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false);
+  const [isMining, setIsMining] = useState(false);
+  const [miningProgress, setMiningProgress] = useState(0);
+  const [miningStep, setMiningStep] = useState("");
+  const [canMineToday, setCanMineToday] = useState(true);
+  const [cooldownRemaining, setCooldownRemaining] = useState("");
   const { toast } = useToast();
+
+  const [transactions, setTransactions] = useState<Array<{type: string; amount: number; date: string; status: string}>>(() => {
+    const saved = localStorage.getItem("transactions");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Check mining cooldown
+  useEffect(() => {
+    const checkCooldown = () => {
+      const lastMined = localStorage.getItem(MINING_COOLDOWN_KEY);
+      if (!lastMined) {
+        setCanMineToday(true);
+        setCooldownRemaining("");
+        return;
+      }
+      const lastTime = parseInt(lastMined);
+      const now = Date.now();
+      const diff = now - lastTime;
+      const oneDay = 24 * 60 * 60 * 1000;
+
+      if (diff >= oneDay) {
+        setCanMineToday(true);
+        setCooldownRemaining("");
+      } else {
+        setCanMineToday(false);
+        const remaining = oneDay - diff;
+        const hours = Math.floor(remaining / (1000 * 60 * 60));
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
+        setCooldownRemaining(`${hours}h ${minutes}m ${seconds}s`);
+      }
+    };
+
+    checkCooldown();
+    const interval = setInterval(checkCooldown, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const miningSteps = [
+    { progress: 5, text: "Initializing mining engine..." },
+    { progress: 12, text: "Connecting to blockchain network..." },
+    { progress: 20, text: "Authenticating credentials..." },
+    { progress: 30, text: "Scanning available blocks..." },
+    { progress: 40, text: "Allocating hash power..." },
+    { progress: 50, text: "Mining block #48291..." },
+    { progress: 60, text: "Verifying transactions..." },
+    { progress: 70, text: "Processing rewards..." },
+    { progress: 78, text: "Confirming on network..." },
+    { progress: 85, text: "Calculating earnings..." },
+    { progress: 92, text: "Crediting wallet..." },
+    { progress: 100, text: "Mining complete!" },
+  ];
 
   const handleStartMining = () => {
     setShowMineDialog(false);
-    
-    // Show credit alert toast notification after 4 seconds
-    setTimeout(() => {
-      toast({
-        title: "🛡️ Account Credited",
-        description: `Dear ${accountName}, ₦86,000.00 has been successfully credited to your wallet.`,
-        duration: 5000,
-        className: "bg-slate-900 text-white border-none rounded-xl",
-      });
-    }, 4000);
+    setIsMining(true);
+    setMiningProgress(0);
+    setMiningStep(miningSteps[0].text);
 
-    // Show centered success dialog after 6 seconds (4s + 2s) and update balance
-    setTimeout(() => {
-      setShowSuccessDialog(true);
-      setWalletBalance(86000);
-    }, 6000);
+    let stepIndex = 0;
+    const runStep = () => {
+      if (stepIndex >= miningSteps.length) {
+        setTimeout(() => {
+          setIsMining(false);
+          const newBalance = walletBalance + 86000;
+          setWalletBalance(newBalance);
+          localStorage.setItem("wallet_balance", newBalance.toString());
+          localStorage.setItem(MINING_COOLDOWN_KEY, Date.now().toString());
+          setCanMineToday(false);
+
+          const newTx = {
+            type: "Mining",
+            amount: 86000,
+            date: new Date().toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+            status: "Completed",
+          };
+          const updatedTx = [newTx, ...transactions];
+          setTransactions(updatedTx);
+          localStorage.setItem("transactions", JSON.stringify(updatedTx));
+
+          toast({
+            title: "🛡️ Account Credited",
+            description: `Dear ${accountName}, ₦86,000.00 has been successfully credited to your wallet.`,
+            duration: 5000,
+            className: "bg-card text-foreground border-primary/30 rounded-xl",
+          });
+
+          setShowSuccessDialog(true);
+        }, 800);
+        return;
+      }
+
+      const step = miningSteps[stepIndex];
+      setMiningProgress(step.progress);
+      setMiningStep(step.text);
+      stepIndex++;
+
+      const delay = 600 + Math.random() * 1200;
+      setTimeout(runStep, delay);
+    };
+
+    setTimeout(runStep, 500);
   };
 
   const handleWithdraw = () => {
     setIsWithdrawLoading(true);
-    
     setTimeout(() => {
       setIsWithdrawLoading(false);
       navigate("/withdraw");
     }, 2500);
   };
 
+  const handleMineClick = () => {
+    if (!canMineToday) {
+      toast({
+        title: "⏳ Mining Cooldown",
+        description: `You can mine again in ${cooldownRemaining}. Free plan allows 1 mine per day.`,
+        duration: 4000,
+        className: "bg-card text-foreground border-primary/30 rounded-xl",
+      });
+      return;
+    }
+    setShowMineDialog(true);
+  };
+
+  const currentDate = new Date().toLocaleDateString("en-NG", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
-    <div className="flex min-h-screen flex-col bg-background px-6 py-8 relative">
-      {/* Loading Overlay */}
+    <div className="flex min-h-screen flex-col bg-background px-4 py-6 relative">
+      {/* Loading Overlays */}
       {isWithdrawLoading && (
         <ProfessionalLoader fullScreen overlay showText text="Processing withdrawal..." />
       )}
-      
-      {/* Wallet Balance Card */}
-      <Card className="bg-primary border-none mb-8">
-        <CardContent className="p-6">
-          <div className="flex justify-between items-start mb-2">
-            <p className="text-sm text-white/80">Wallet Balance</p>
-            <a href="#" className="text-sm text-white hover:underline">
-              Transaction history &gt;
-            </a>
+
+      {/* Mining Overlay */}
+      {isMining && (
+        <div className="fixed inset-0 z-50 bg-background/98 backdrop-blur-sm flex items-center justify-center">
+          <div className="flex flex-col items-center gap-6 px-8 max-w-sm w-full animate-fade-in">
+            {/* Mining animation */}
+            <div className="relative">
+              <div className="absolute inset-0 rounded-full bg-primary/20 animate-pulse-ring" style={{ width: 96, height: 96 }} />
+              <div className="w-24 h-24 rounded-full bg-card border-2 border-primary/40 flex items-center justify-center shadow-[0_0_40px_hsl(160_84%_39%/0.2)]">
+                <Pickaxe className="w-10 h-10 text-primary animate-bounce" strokeWidth={1.5} />
+              </div>
+            </div>
+
+            <h3 className="text-lg font-bold text-foreground">Mining in Progress</h3>
+
+            {/* Progress bar */}
+            <div className="w-full space-y-2">
+              <Progress value={miningProgress} className="h-3 bg-muted" />
+              <div className="flex justify-between items-center">
+                <p className="text-xs text-muted-foreground font-mono">{miningStep}</p>
+                <p className="text-xs font-bold text-primary">{miningProgress}%</p>
+              </div>
+            </div>
+
+            {/* Live stats */}
+            <div className="w-full grid grid-cols-2 gap-3 mt-2">
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Hash Rate</p>
+                <p className="text-sm font-bold text-foreground">{(miningProgress * 1.2 + Math.random() * 10).toFixed(1)} MH/s</p>
+              </div>
+              <div className="bg-card rounded-lg p-3 border border-border">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Est. Reward</p>
+                <p className="text-sm font-bold text-primary">₦{(miningProgress * 860).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground text-center mt-2">
+              Do not close this screen while mining is active
+            </p>
           </div>
-          <h2 className="text-4xl font-bold text-white mb-4">₦{walletBalance.toLocaleString()}</h2>
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <User className="w-5 h-5 text-primary" />
+          </div>
           <div>
-            <p className="text-sm text-white/90">Account: {accountNumber}</p>
-            <p className="text-sm text-white/90">Name: {accountName}</p>
+            <p className="text-sm font-semibold text-foreground">{accountName}</p>
+            <p className="text-xs text-muted-foreground">{currentDate}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <ShieldCheck className="w-5 h-5 text-primary" />
+          <span className="text-[10px] text-primary font-semibold uppercase tracking-wider">Verified</span>
+        </div>
+      </div>
+
+      {/* Wallet Balance Card */}
+      <Card className="bg-gradient-to-br from-primary to-primary/80 border-none mb-6 overflow-hidden relative">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-foreground/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-20 h-20 bg-foreground/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+        <CardContent className="p-5 relative">
+          <div className="flex justify-between items-start mb-1">
+            <p className="text-xs text-primary-foreground/70 uppercase tracking-wider font-medium">Wallet Balance</p>
+            <Landmark className="w-5 h-5 text-primary-foreground/40" />
+          </div>
+          <h2 className="text-3xl font-bold text-primary-foreground mb-4 tracking-tight">
+            ₦{walletBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}
+          </h2>
+          <div className="flex items-center gap-4 text-xs text-primary-foreground/80">
+            <span>Acct: {accountNumber}</span>
+            <span className="w-1 h-1 rounded-full bg-primary-foreground/40" />
+            <span>{accountName}</span>
           </div>
         </CardContent>
       </Card>
 
-      {/* BUY MINER Button */}
-      <Button 
-        className="w-full h-16 mb-6 bg-black text-white hover:bg-black/90 text-lg font-bold rounded-xl"
-      >
-        BUY MINER
-      </Button>
+      {/* Mining Status */}
+      {!canMineToday && (
+        <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-card rounded-lg border border-border">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <p className="text-xs text-muted-foreground">Next mine available in: <span className="text-primary font-semibold">{cooldownRemaining}</span></p>
+        </div>
+      )}
 
-      {/* Mine and Withdraw Buttons */}
-      <div className="space-y-4 mb-auto">
-        <Button 
-          onClick={() => setShowMineDialog(true)}
-          className="w-full h-16 bg-primary hover:bg-primary/90 text-white text-lg font-semibold rounded-xl flex items-center justify-center gap-3"
+      {/* Action Buttons */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <Button
+          onClick={handleMineClick}
+          disabled={isMining}
+          className="h-14 bg-card hover:bg-card/80 text-foreground border border-border rounded-xl flex flex-col items-center justify-center gap-1"
+          variant="ghost"
         >
-          <CreditCard className="w-6 h-6" />
-          Mine
+          <Pickaxe className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold">Mine</span>
         </Button>
-        <Button 
+        <Button
           onClick={handleWithdraw}
           disabled={isWithdrawLoading}
-          className="w-full h-16 bg-primary hover:bg-primary/90 text-white text-lg font-semibold rounded-xl flex items-center justify-center gap-3"
+          className="h-14 bg-card hover:bg-card/80 text-foreground border border-border rounded-xl flex flex-col items-center justify-center gap-1"
+          variant="ghost"
         >
-          <Send className="w-6 h-6" />
-          Withdraw
+          <Send className="w-5 h-5 text-primary" />
+          <span className="text-xs font-semibold">Withdraw</span>
         </Button>
       </div>
 
-      {/* Bank Icon at Bottom */}
-      <div className="flex justify-center mt-8 pt-8">
-        <Landmark className="w-32 h-32 text-primary" strokeWidth={1.5} />
+      {/* BUY MINER */}
+      <Button className="w-full h-12 mb-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl flex items-center justify-center gap-2">
+        <TrendingUp className="w-5 h-5" />
+        Upgrade Miner Plan
+      </Button>
+
+      {/* Transaction History */}
+      <div className="flex-1">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-foreground">Transaction History</h3>
+          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{transactions.length} records</span>
+        </div>
+
+        {transactions.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-10 text-center">
+            <Clock className="w-10 h-10 text-muted-foreground/30 mb-3" />
+            <p className="text-sm text-muted-foreground">No transactions yet</p>
+            <p className="text-xs text-muted-foreground/60">Start mining to see your history</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {transactions.slice(0, 10).map((tx, i) => (
+              <div key={i} className="flex items-center justify-between bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center ${tx.type === "Mining" ? "bg-primary/15" : "bg-destructive/15"}`}>
+                    {tx.type === "Mining" ? (
+                      <Pickaxe className="w-4 h-4 text-primary" />
+                    ) : (
+                      <Send className="w-4 h-4 text-destructive" />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{tx.type}</p>
+                    <p className="text-[10px] text-muted-foreground">{tx.date}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className={`text-xs font-bold ${tx.type === "Mining" ? "text-primary" : "text-destructive"}`}>
+                    {tx.type === "Mining" ? "+" : "-"}₦{tx.amount.toLocaleString()}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">{tx.status}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Mine Dialog */}
       <Dialog open={showMineDialog} onOpenChange={setShowMineDialog}>
-        <DialogContent className="bg-white rounded-2xl shadow-lg max-w-sm mx-auto">
+        <DialogContent className="bg-card rounded-2xl shadow-lg max-w-sm mx-auto border-border">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-black font-bold text-lg">
-              <span className="text-2xl">🪙</span>
-              Welcome new user
+            <DialogTitle className="flex items-center gap-2 text-foreground font-bold text-lg">
+              <span className="text-2xl">⛏️</span>
+              Start Mining
             </DialogTitle>
-            <DialogDescription className="text-black text-center pt-4 leading-relaxed">
-              Hello dear user your current plan is set on free miner so you can only mine NGN86,000.00 daily are you sure you want to start miner.
+            <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
+              Your current plan is <span className="text-primary font-semibold">Free Miner</span>. You can mine <span className="text-primary font-semibold">₦86,000.00</span> once per day. Do you want to start mining now?
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter className="flex justify-end">
-            <Button 
-              onClick={handleStartMining}
-              className="bg-transparent hover:bg-transparent text-primary font-semibold"
+          <DialogFooter className="flex gap-2 sm:justify-end">
+            <Button
+              variant="ghost"
+              onClick={() => setShowMineDialog(false)}
+              className="text-muted-foreground"
             >
-              START MINING
+              Cancel
+            </Button>
+            <Button
+              onClick={handleStartMining}
+              className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6"
+            >
+              Start Mining
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -126,20 +355,20 @@ const Dashboard = () => {
 
       {/* Success Dialog */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="bg-white rounded-2xl shadow-lg max-w-sm mx-auto">
+        <DialogContent className="bg-card rounded-2xl shadow-lg max-w-sm mx-auto border-border">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-black font-bold text-lg">
-              <span className="text-2xl">💰</span>
-              Mined successful
+            <DialogTitle className="flex items-center gap-2 text-foreground font-bold text-lg">
+              <span className="text-2xl">✅</span>
+              Mining Successful
             </DialogTitle>
-            <DialogDescription className="text-black text-center pt-4 leading-relaxed">
-              You have successfully mined NGN86,000.00 to your wallet. Now you can withdraw.
+            <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
+              You have successfully mined <span className="text-primary font-semibold">₦86,000.00</span> to your wallet. You can mine again in 24 hours or upgrade your plan for more.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end">
-            <Button 
+            <Button
               onClick={() => setShowSuccessDialog(false)}
-              className="bg-primary hover:bg-primary/90 text-white px-6"
+              className="bg-primary hover:bg-primary/90 text-primary-foreground px-6"
             >
               OK
             </Button>
