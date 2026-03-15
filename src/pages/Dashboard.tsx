@@ -1,10 +1,11 @@
-import { CreditCard, Send, Landmark, ShieldCheck, Loader2 } from "lucide-react";
+import { CreditCard, Send, Landmark, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Dashboard = () => {
   const location = useLocation();
