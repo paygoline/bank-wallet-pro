@@ -33,6 +33,7 @@ const App = () => (
           <Route path="/payment-status" element={<PaymentStatus />} />
           <Route path="/activation-success" element={<ActivationSuccess />} />
           <Route path="/withdraw-success" element={<WithdrawSuccess />} />
+          <Route path="/miner-plans" element={<MinerPlans />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
