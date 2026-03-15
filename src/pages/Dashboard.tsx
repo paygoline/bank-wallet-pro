@@ -1,10 +1,11 @@
-import { CreditCard, Send, Landmark, ShieldCheck, Loader2 } from "lucide-react";
+import { CreditCard, Send, Landmark, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Dashboard = () => {
   const location = useLocation();
@@ -49,9 +50,7 @@ const Dashboard = () => {
     <div className="flex min-h-screen flex-col bg-background px-6 py-8 relative">
       {/* Loading Overlay */}
       {isWithdrawLoading && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-          <Loader2 className="w-16 h-16 animate-spin text-white" />
-        </div>
+        <ProfessionalLoader fullScreen overlay showText text="Processing withdrawal..." />
       )}
       
       {/* Wallet Balance Card */}

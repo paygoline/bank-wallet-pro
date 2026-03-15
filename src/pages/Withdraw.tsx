@@ -10,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Loader2 } from "lucide-react";
+import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Withdraw = () => {
   const [code, setCode] = useState("");
@@ -51,9 +51,7 @@ const Withdraw = () => {
   return (
     <div className="flex min-h-screen flex-col bg-black">
       {isLoading && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <Loader2 className="w-12 h-12 text-white animate-spin" />
-        </div>
+        <ProfessionalLoader fullScreen overlay showText text="Please wait..." />
       )}
 
       {/* Main Content */}

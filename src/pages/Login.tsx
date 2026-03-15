@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -29,23 +30,12 @@ const Login = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <div className="relative w-24 h-24 animate-spin">
-          {[...Array(12)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1.5 h-6 rounded-full"
-              style={{
-                left: '50%',
-                top: '50%',
-                transformOrigin: '0 36px',
-                transform: `rotate(${i * 30}deg) translateY(-36px)`,
-                background: `rgba(239, 68, 68, ${1 - (i * 0.07)})`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
+      <ProfessionalLoader
+        fullScreen
+        showLogo
+        showText
+        text="Verifying your account..."
+      />
     );
   }
 
