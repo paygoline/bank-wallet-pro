@@ -120,10 +120,10 @@ const PaymentConfirmation = () => {
 
         {/* Receiver Details */}
         <div className="border-2 border-primary rounded-xl p-4 space-y-2 text-sm">
-          <p>🧾 Acc: 6435377527</p>
-          <p>👤 Name: MUJAHID ALIYU</p>
-          <p>🏦 Bank: MONIEPOINT</p>
-          <p>💰 Amount: ₦5,000</p>
+          <p>🧾 Acc: 8142355686</p>
+          <p>👤 Name: YILKWAM MANCIT</p>
+          <p>🏦 Bank: MOMO PSB</p>
+          <p>💰 Amount: ₦5,700</p>
         </div>
 
         {/* Upload Section */}
