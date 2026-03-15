@@ -12,6 +12,7 @@ import PaymentConfirmation from "./pages/PaymentConfirmation";
 import PaymentStatus from "./pages/PaymentStatus";
 import ActivationSuccess from "./pages/ActivationSuccess";
 import WithdrawSuccess from "./pages/WithdrawSuccess";
+import MinerPlans from "./pages/MinerPlans";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
