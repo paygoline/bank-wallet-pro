@@ -160,6 +160,16 @@ const Dashboard = () => {
   };
 
   const handleMineClick = () => {
+    if (!isMinerActivated) {
+      toast({
+        title: "🔒 Miner Not Activated",
+        description: "You must purchase and activate your miner (₦5,700) before you can mine.",
+        duration: 4000,
+        className: "bg-card text-foreground border-destructive/30 rounded-xl",
+      });
+      navigate("/buy-code");
+      return;
+    }
     if (!canMineToday) {
       toast({
         title: "⏳ Mining Cooldown",
