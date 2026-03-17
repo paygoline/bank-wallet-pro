@@ -20,6 +20,14 @@ const Dashboard = () => {
     const saved = localStorage.getItem("wallet_balance");
     return saved ? parseFloat(saved) : 0;
   });
+
+  // Sync wallet and transactions from localStorage when returning to dashboard
+  useEffect(() => {
+    const saved = localStorage.getItem("wallet_balance");
+    if (saved !== null) setWalletBalance(parseFloat(saved));
+    const savedTx = localStorage.getItem("transactions");
+    if (savedTx) setTransactions(JSON.parse(savedTx));
+  }, []);
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false);
   const [isMining, setIsMining] = useState(false);
   const [miningProgress, setMiningProgress] = useState(0);
