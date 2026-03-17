@@ -2,7 +2,7 @@ import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Picka
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ProfessionalLoader from "@/components/ProfessionalLoader";
