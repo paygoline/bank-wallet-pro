@@ -1,195 +1,166 @@
-import { Landmark, ShieldCheck, Delete, Check } from "lucide-react";
+import { Send, ArrowLeft, Wallet, User, CreditCard, Landmark } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 import ProfessionalLoader from "@/components/ProfessionalLoader";
 
 const Withdraw = () => {
-  const [code, setCode] = useState("");
-  const [showAlert, setShowAlert] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleNumberClick = (num: string) => {
-    if (code.length < 6) {
-      setCode(code + num);
+  const walletBalance = parseFloat(localStorage.getItem("wallet_balance") || "0");
+  const savedName = localStorage.getItem("user_account_name") || "";
+  const savedNumber = localStorage.getItem("user_account_number") || "";
+
+  const [amount, setAmount] = useState("");
+  const [accountName, setAccountName] = useState(savedName);
+  const [accountNumber, setAccountNumber] = useState(savedNumber);
+  const [bankName, setBankName] = useState("");
+
+  const handleWithdraw = () => {
+    const withdrawAmt = parseFloat(amount);
+    if (!accountName.trim() || !accountNumber.trim() || !bankName.trim()) {
+      toast({
+        title: "⚠️ Missing Details",
+        description: "Please fill in all account details before withdrawing.",
+        duration: 3000,
+        className: "bg-card text-foreground border-destructive/30 rounded-xl",
+      });
+      return;
     }
-  };
-
-  const handleBackspace = () => {
-    setCode(code.slice(0, -1));
-  };
-
-  const handleSubmit = () => {
-    if (code === "200420") {
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-        navigate("/activation-success");
-      }, 200);
-    } else {
-      setShowAlert(true);
+    if (!amount || isNaN(withdrawAmt) || withdrawAmt <= 0) {
+      toast({
+        title: "⚠️ Invalid Amount",
+        description: "Please enter a valid withdrawal amount.",
+        duration: 3000,
+        className: "bg-card text-foreground border-destructive/30 rounded-xl",
+      });
+      return;
     }
-  };
+    if (withdrawAmt > walletBalance) {
+      toast({
+        title: "❌ Insufficient Balance",
+        description: `Your wallet balance is ₦${walletBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}`,
+        duration: 3000,
+        className: "bg-card text-foreground border-destructive/30 rounded-xl",
+      });
+      return;
+    }
 
-  const handleBuyCode = () => {
     setIsLoading(true);
+    // Store the withdrawal amount for the success page
+    localStorage.setItem("pending_withdrawal", withdrawAmt.toString());
+
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/buy-code");
-    }, 200);
+      navigate("/withdraw-success");
+    }, 3000);
   };
 
+  const quickAmounts = [5000, 10000, 50000, walletBalance].filter(a => a > 0);
+
   return (
-    <div className="flex min-h-screen flex-col bg-black">
+    <div className="flex min-h-screen flex-col bg-background px-4 py-6">
       {isLoading && (
-        <ProfessionalLoader fullScreen overlay showText text="Please wait..." />
+        <ProfessionalLoader fullScreen overlay showText text="Processing withdrawal..." />
       )}
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
-        {/* Shield Logo with Bank Icon */}
-        <div className="mb-8 relative">
-          <ShieldCheck className="w-32 h-32 text-primary" strokeWidth={1.5} />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Landmark className="w-12 h-12 text-primary" strokeWidth={2} />
-          </div>
-        </div>
-
-        {/* Heading */}
-        <h1 className="text-xl font-bold text-white mb-8 text-center">
-          Enter Your WITHDRAW CODE
-        </h1>
-
-        {/* Code Input Display */}
-        <div className="w-full max-w-xs mb-12">
-          <div className="h-16 bg-white rounded-xl flex items-center justify-center">
-            <div className="flex gap-2">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className="w-3 h-3 rounded-full bg-black"
-                  style={{ opacity: i < code.length ? 1 : 0.2 }}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Numeric Keypad */}
-        <div className="w-full max-w-xs mb-8">
-          <div className="grid grid-cols-3 gap-4">
-            {/* Row 1 */}
-            {[1, 2, 3].map((num) => (
-              <button
-                key={num}
-                onClick={() => handleNumberClick(num.toString())}
-                className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white text-2xl font-semibold transition-colors"
-              >
-                {num}
-              </button>
-            ))}
-            
-            {/* Row 2 */}
-            {[4, 5, 6].map((num) => (
-              <button
-                key={num}
-                onClick={() => handleNumberClick(num.toString())}
-                className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white text-2xl font-semibold transition-colors"
-              >
-                {num}
-              </button>
-            ))}
-            
-            {/* Row 3 */}
-            {[7, 8, 9].map((num) => (
-              <button
-                key={num}
-                onClick={() => handleNumberClick(num.toString())}
-                className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white text-2xl font-semibold transition-colors"
-              >
-                {num}
-              </button>
-            ))}
-            
-            {/* Row 4 */}
-            <button
-              onClick={handleBackspace}
-              className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white flex items-center justify-center transition-colors"
-            >
-              <Delete className="w-6 h-6" />
-            </button>
-            
-            <button
-              onClick={() => handleNumberClick("0")}
-              className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white text-2xl font-semibold transition-colors"
-            >
-              0
-            </button>
-            
-            <button
-              onClick={handleSubmit}
-              className="h-16 bg-primary hover:bg-primary/90 rounded-xl text-white flex items-center justify-center transition-colors"
-            >
-              <Check className="w-6 h-6" />
-            </button>
-          </div>
-        </div>
-
-        {/* Buy Code Button */}
-        <Button
-          onClick={handleBuyCode}
-          className="w-full max-w-xs h-14 bg-primary hover:bg-primary/90 text-white font-bold text-lg rounded-xl"
-        >
-          Buy Code
-        </Button>
+      {/* Header */}
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => navigate("/dashboard")} className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center">
+          <ArrowLeft className="w-5 h-5 text-foreground" />
+        </button>
+        <h1 className="text-lg font-bold text-foreground">Withdraw Funds</h1>
       </div>
 
-      {/* Alert Dialog */}
-      <AlertDialog open={showAlert} onOpenChange={setShowAlert}>
-        <AlertDialogContent className="bg-white max-w-sm mx-4 rounded-2xl">
-          <AlertDialogHeader>
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center">
-                <Landmark className="w-5 h-5 text-white" />
-              </div>
-              <AlertDialogTitle className="text-black font-bold">
-                Activation Pin
-              </AlertDialogTitle>
-            </div>
-            <AlertDialogDescription className="text-black text-left space-y-3">
-              <p>
-                Invalid activation pin. Please purchase your activation pin from
-                the application to continue the process and start making money
-                daily. Hope you enjoy our app.
-              </p>
-              <p className="text-sm">
-                <strong>NOTE:</strong> Your activation pin cannot be shared. Each
-                activation code is designed for one user.
-              </p>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex justify-end">
+      {/* Balance Card */}
+      <div className="bg-card rounded-xl border border-border p-4 mb-6 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
+          <Wallet className="w-5 h-5 text-primary" />
+        </div>
+        <div>
+          <p className="text-xs text-muted-foreground">Available Balance</p>
+          <p className="text-xl font-bold text-foreground">₦{walletBalance.toLocaleString("en-NG", { minimumFractionDigits: 2 })}</p>
+        </div>
+      </div>
+
+      {/* Amount Input */}
+      <div className="space-y-2 mb-4">
+        <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Amount to Withdraw</label>
+        <div className="relative">
+          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-lg font-bold text-primary">₦</span>
+          <Input
+            type="number"
+            placeholder="0.00"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            className="h-14 pl-10 rounded-xl border-2 border-border bg-card text-foreground text-lg font-semibold focus:border-primary"
+          />
+        </div>
+        {/* Quick amounts */}
+        <div className="flex gap-2 flex-wrap">
+          {quickAmounts.map((amt, i) => (
             <button
-              onClick={() => {
-                setShowAlert(false);
-                handleBuyCode();
-              }}
-              className="text-primary font-bold text-sm hover:underline"
+              key={i}
+              onClick={() => setAmount(amt.toString())}
+              className="px-3 py-1.5 rounded-lg bg-card border border-border text-xs font-semibold text-muted-foreground hover:border-primary hover:text-primary transition-colors"
             >
-              BUY CODE
+              {amt === walletBalance ? "MAX" : `₦${amt.toLocaleString()}`}
             </button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+          ))}
+        </div>
+      </div>
+
+      {/* Bank Details */}
+      <div className="space-y-3 mb-6">
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Bank Details</p>
+
+        <div className="relative">
+          <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Account Name"
+            value={accountName}
+            onChange={(e) => setAccountName(e.target.value)}
+            className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary"
+          />
+        </div>
+
+        <div className="relative">
+          <CreditCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Account Number"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+            className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary"
+          />
+        </div>
+
+        <div className="relative">
+          <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Bank Name"
+            value={bankName}
+            onChange={(e) => setBankName(e.target.value)}
+            className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary"
+          />
+        </div>
+      </div>
+
+      {/* Withdraw Button */}
+      <Button
+        onClick={handleWithdraw}
+        disabled={isLoading}
+        className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl flex items-center justify-center gap-2"
+      >
+        <Send className="w-5 h-5" />
+        Withdraw
+      </Button>
     </div>
   );
 };

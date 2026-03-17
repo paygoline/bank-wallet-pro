@@ -2,7 +2,7 @@ import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Picka
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import ProfessionalLoader from "@/components/ProfessionalLoader";
@@ -11,9 +11,9 @@ import { Progress } from "@/components/ui/progress";
 const MINING_COOLDOWN_KEY = "last_mining_timestamp";
 
 const Dashboard = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { accountName = "Account Name", accountNumber = "Account Number" } = location.state || {};
+  const accountName = localStorage.getItem("user_account_name") || "Account Name";
+  const accountNumber = localStorage.getItem("user_account_number") || "Account Number";
   const [showMineDialog, setShowMineDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [walletBalance, setWalletBalance] = useState(() => {
