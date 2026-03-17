@@ -139,7 +139,19 @@ const Dashboard = () => {
     setTimeout(runStep, 500);
   };
 
+  const isMinerActivated = localStorage.getItem("miner_activated") === "true";
+
   const handleWithdraw = () => {
+    if (!isMinerActivated) {
+      toast({
+        title: "🔒 Miner Not Activated",
+        description: "You must purchase and activate your miner (₦5,700) before you can withdraw.",
+        duration: 4000,
+        className: "bg-card text-foreground border-destructive/30 rounded-xl",
+      });
+      navigate("/buy-code");
+      return;
+    }
     setIsWithdrawLoading(true);
     setTimeout(() => {
       setIsWithdrawLoading(false);
