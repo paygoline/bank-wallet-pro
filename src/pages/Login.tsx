@@ -17,13 +17,11 @@ const Login = () => {
     
     if (phone.trim() && accountName.trim() && accountNumber.trim()) {
       setIsLoading(true);
+      localStorage.setItem("user_phone", phone);
+      localStorage.setItem("user_account_name", accountName);
+      localStorage.setItem("user_account_number", accountNumber);
       setTimeout(() => {
-        navigate("/dashboard", { 
-          state: { 
-            accountName, 
-            accountNumber 
-          } 
-        });
+        navigate("/dashboard");
       }, 5000);
     }
   };

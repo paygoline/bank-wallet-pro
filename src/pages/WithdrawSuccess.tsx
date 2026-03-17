@@ -6,14 +6,15 @@ import { useEffect, useState } from "react";
 const WithdrawSuccess = () => {
   const navigate = useNavigate();
   const [withdrawAmount] = useState(() => {
-    const balance = parseFloat(localStorage.getItem("wallet_balance") || "0");
-    return balance;
+    return parseFloat(localStorage.getItem("pending_withdrawal") || "0");
   });
 
   useEffect(() => {
-    // Deduct full balance as withdrawal
     if (withdrawAmount > 0) {
-      localStorage.setItem("wallet_balance", "0");
+      const currentBalance = parseFloat(localStorage.getItem("wallet_balance") || "0");
+      const newBalance = Math.max(0, currentBalance - withdrawAmount);
+      localStorage.setItem("wallet_balance", newBalance.toString());
+      localStorage.removeItem("pending_withdrawal");
 
       const newTx = {
         type: "Withdrawal",
@@ -28,14 +29,9 @@ const WithdrawSuccess = () => {
         status: "Completed",
       };
       const existing = JSON.parse(localStorage.getItem("transactions") || "[]");
-      const updated = [newTx, ...existing];
-      localStorage.setItem("transactions", JSON.stringify(updated));
+      localStorage.setItem("transactions", JSON.stringify([newTx, ...existing]));
     }
   }, [withdrawAmount]);
-
-  const handleBackToDashboard = () => {
-    navigate("/dashboard");
-  };
 
   return (
     <div className="min-h-screen bg-background text-foreground px-4 py-6 flex flex-col items-center justify-center">
@@ -54,7 +50,7 @@ const WithdrawSuccess = () => {
         </div>
 
         <Button
-          onClick={handleBackToDashboard}
+          onClick={() => navigate("/dashboard")}
           className="w-full max-w-xs h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl mx-auto"
         >
           BACK TO DASHBOARD

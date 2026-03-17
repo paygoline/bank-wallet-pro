@@ -13,7 +13,8 @@ const MINING_COOLDOWN_KEY = "last_mining_timestamp";
 const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { accountName = "Account Name", accountNumber = "Account Number" } = location.state || {};
+  const accountName = localStorage.getItem("user_account_name") || "Account Name";
+  const accountNumber = localStorage.getItem("user_account_number") || "Account Number";
   const [showMineDialog, setShowMineDialog] = useState(false);
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [walletBalance, setWalletBalance] = useState(() => {
