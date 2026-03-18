@@ -249,9 +249,18 @@ const Dashboard = () => {
             <p className="text-xs text-muted-foreground">{currentDate}</p>
           </div>
         </div>
-        <div className="flex items-center gap-1">
-          <ShieldCheck className="w-5 h-5 text-primary" />
-          <span className="text-[10px] text-primary font-semibold uppercase tracking-wider">Verified</span>
+        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${isMinerActivated ? 'bg-primary/10 border-primary/30' : 'bg-destructive/10 border-destructive/30'}`}>
+          {isMinerActivated ? (
+            <>
+              <ShieldCheck className="w-4 h-4 text-primary" />
+              <span className="text-[10px] text-primary font-semibold uppercase tracking-wider">Miner Active</span>
+            </>
+          ) : (
+            <>
+              <ShieldCheck className="w-4 h-4 text-destructive" />
+              <span className="text-[10px] text-destructive font-semibold uppercase tracking-wider">Not Activated</span>
+            </>
+          )}
         </div>
       </div>
 
