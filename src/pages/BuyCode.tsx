@@ -3,9 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, User, CreditCard, Landmark, ShieldCheck, Zap, Star, Crown, Rocket, Check, Info, Pickaxe } from "lucide-react";
+import { ArrowLeft, User, CreditCard, Landmark, ShieldCheck, Zap, Star, Crown, Rocket, Check, Info, Pickaxe, ExternalLink } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { nigerianBanks } from "@/data/nigerianBanks";
+import MinerComparisonTable from "@/components/MinerComparisonTable";
 
 const minerPlans = [
   {
@@ -114,6 +117,9 @@ const BuyCode = () => {
         </div>
       </div>
 
+      {/* ROI Comparison Table */}
+      <MinerComparisonTable />
+
       {/* Miner Plans */}
       <div className="mb-5">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
@@ -219,14 +225,19 @@ const BuyCode = () => {
         </div>
 
         <div className="relative">
-          <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Bank Name"
-            value={bankName}
-            onChange={(e) => setBankName(e.target.value)}
-            className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary"
-          />
+          <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+          <Select value={bankName} onValueChange={(val) => setBankName(val)}>
+            <SelectTrigger className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground focus:border-primary [&>span]:text-left">
+              <SelectValue placeholder="Select Bank" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {nigerianBanks.map((bank) => (
+                <SelectItem key={bank} value={bank} className="text-sm">
+                  {bank}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -241,14 +252,39 @@ const BuyCode = () => {
         </div>
       )}
 
+      {/* Payment Link Gateway Option */}
+      {selected && (
+        <div className="bg-card border border-border rounded-xl p-3.5 mb-4">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Payment Options</p>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleProceed}
+              className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl"
+            >
+              Bank Transfer
+            </Button>
+            <Button
+              onClick={() => {
+                localStorage.setItem("selected_miner_plan", selectedPlan!);
+                localStorage.setItem("selected_miner_price", selected.price.toString());
+                window.open(`https://paystack.com/pay/miner-${selected.id}`, "_blank");
+              }}
+              variant="outline"
+              className="flex-1 h-11 font-bold text-sm rounded-xl border-primary text-primary hover:bg-primary/5"
+            >
+              <ExternalLink className="w-4 h-4 mr-1" />
+              Pay Online
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Button
         onClick={handleProceed}
         className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl"
       >
         PROCEED TO PAYMENT
       </Button>
-
-      {/* Trust indicators */}
       <div className="flex items-center justify-center gap-4 mt-4 pb-4">
         <div className="flex items-center gap-1">
           <ShieldCheck className="w-3 h-3 text-primary" />
