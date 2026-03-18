@@ -225,14 +225,19 @@ const BuyCode = () => {
         </div>
 
         <div className="relative">
-          <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Bank Name"
-            value={bankName}
-            onChange={(e) => setBankName(e.target.value)}
-            className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground placeholder:text-muted-foreground focus:border-primary"
-          />
+          <Landmark className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+          <Select value={bankName} onValueChange={(val) => setBankName(val)}>
+            <SelectTrigger className="h-12 pl-10 rounded-xl border-2 border-border bg-card text-foreground focus:border-primary [&>span]:text-left">
+              <SelectValue placeholder="Select Bank" />
+            </SelectTrigger>
+            <SelectContent className="max-h-60">
+              {nigerianBanks.map((bank) => (
+                <SelectItem key={bank} value={bank} className="text-sm">
+                  {bank}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
