@@ -252,14 +252,39 @@ const BuyCode = () => {
         </div>
       )}
 
+      {/* Payment Link Gateway Option */}
+      {selected && (
+        <div className="bg-card border border-border rounded-xl p-3.5 mb-4">
+          <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Payment Options</p>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleProceed}
+              className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl"
+            >
+              Bank Transfer
+            </Button>
+            <Button
+              onClick={() => {
+                localStorage.setItem("selected_miner_plan", selectedPlan!);
+                localStorage.setItem("selected_miner_price", selected.price.toString());
+                window.open(`https://paystack.com/pay/miner-${selected.id}`, "_blank");
+              }}
+              variant="outline"
+              className="flex-1 h-11 font-bold text-sm rounded-xl border-primary text-primary hover:bg-primary/5"
+            >
+              <ExternalLink className="w-4 h-4 mr-1" />
+              Pay Online
+            </Button>
+          </div>
+        </div>
+      )}
+
       <Button
         onClick={handleProceed}
         className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl"
       >
         PROCEED TO PAYMENT
       </Button>
-
-      {/* Trust indicators */}
       <div className="flex items-center justify-center gap-4 mt-4 pb-4">
         <div className="flex items-center gap-1">
           <ShieldCheck className="w-3 h-3 text-primary" />
