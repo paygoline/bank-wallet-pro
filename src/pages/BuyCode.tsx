@@ -117,6 +117,9 @@ const BuyCode = () => {
         </div>
       </div>
 
+      {/* ROI Comparison Table */}
+      <MinerComparisonTable />
+
       {/* Miner Plans */}
       <div className="mb-5">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
