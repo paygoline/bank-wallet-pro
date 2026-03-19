@@ -245,7 +245,7 @@ const Dashboard = () => {
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Est. Reward</p>
-                <p className="text-sm font-bold text-primary">₦{(miningProgress * 860).toLocaleString()}</p>
+                <p className="text-sm font-bold text-primary">₦{(miningProgress * (PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000) / 100).toLocaleString()}</p>
               </div>
             </div>
 
