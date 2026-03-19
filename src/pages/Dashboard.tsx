@@ -422,7 +422,7 @@ const Dashboard = () => {
               Mining Successful
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
-              You have successfully mined <span className="text-primary font-semibold">₦86,000.00</span> to your wallet. You can mine again in 24 hours or upgrade your plan for more.
+              You have successfully mined <span className="text-primary font-semibold">₦{(PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000).toLocaleString()}.00</span> to your wallet. You can mine again in 24 hours or upgrade your plan for more.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end">
