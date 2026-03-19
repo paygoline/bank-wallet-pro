@@ -332,14 +332,24 @@ const Dashboard = () => {
         </Button>
       </div>
 
-      {/* BUY MINER */}
-      <Button
-        onClick={() => navigate("/miner-plans")}
-        className="w-full h-12 mb-6 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl flex items-center justify-center gap-2"
-      >
-        <TrendingUp className="w-5 h-5" />
-        Upgrade Miner Plan
-      </Button>
+      {/* BUY MINER & REFERRAL */}
+      <div className="grid grid-cols-2 gap-3 mb-6">
+        <Button
+          onClick={() => navigate("/miner-plans")}
+          className="h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-bold rounded-xl flex items-center justify-center gap-2"
+        >
+          <TrendingUp className="w-4 h-4" />
+          Upgrade Plan
+        </Button>
+        <Button
+          onClick={() => navigate("/referral")}
+          variant="outline"
+          className="h-12 border-primary text-primary hover:bg-primary/5 font-bold rounded-xl flex items-center justify-center gap-2"
+        >
+          <Users className="w-4 h-4" />
+          Refer & Earn
+        </Button>
+      </div>
 
       {/* Transaction History */}
       <div className="flex-1">
