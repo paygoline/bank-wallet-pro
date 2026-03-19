@@ -199,7 +199,7 @@ const PaymentConfirmation = () => {
           <p>🧾 Acc: 8142355686</p>
           <p>👤 Name: YILKWAM MANCIT</p>
           <p>🏦 Bank: MOMO PSB</p>
-          <p>💰 Amount: ₦5,700</p>
+          <p>💰 Amount: ₦{selectedPrice.toLocaleString()}</p>
         </div>
 
         {/* Upload Section */}
