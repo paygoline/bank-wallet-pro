@@ -153,8 +153,8 @@ const PaymentConfirmation = () => {
         {/* Message Box */}
         <div className="border-2 border-primary rounded-xl p-4 bg-card">
           <p className="text-foreground text-center">
-            Hello dear user, kindly make a one-time payment of ₦5,700 to purchase
-            your personal activation code.
+            Hello dear user, kindly make a one-time payment of <span className="font-bold text-primary">₦{selectedPrice.toLocaleString()}</span> to purchase
+            your <span className="font-bold">{selectedName}</span> activation code.
           </p>
         </div>
 
