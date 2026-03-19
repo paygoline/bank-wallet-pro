@@ -10,6 +10,20 @@ import { Progress } from "@/components/ui/progress";
 
 const MINING_COOLDOWN_KEY = "last_mining_timestamp";
 
+const PLAN_EARNINGS: Record<string, number> = {
+  basic: 86000,
+  silver: 250000,
+  gold: 750000,
+  platinum: 2000000,
+};
+
+const PLAN_NAMES: Record<string, string> = {
+  basic: "Basic Miner",
+  silver: "Silver Miner",
+  gold: "Gold Miner",
+  platinum: "Platinum Miner",
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const accountName = localStorage.getItem("user_account_name") || "Account Name";
