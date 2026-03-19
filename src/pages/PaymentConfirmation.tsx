@@ -9,10 +9,27 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+const PLAN_PRICES: Record<string, number> = {
+  basic: 5700,
+  silver: 15000,
+  gold: 45000,
+  platinum: 100000,
+};
+
+const PLAN_NAMES: Record<string, string> = {
+  basic: "Basic Miner",
+  silver: "Silver Miner",
+  gold: "Gold Miner",
+  platinum: "Platinum Miner",
+};
+
 const PaymentConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { accountNumber, accountName, bankName } = location.state || {};
+  const { accountNumber, accountName, bankName, plan } = location.state || {};
+  const planId = localStorage.getItem("selected_miner_plan") || "basic";
+  const selectedPrice = plan?.price || PLAN_PRICES[planId] || 5700;
+  const selectedName = plan?.name || PLAN_NAMES[planId] || "Basic Miner";
   const [timer, setTimer] = useState(480);
   const [showNotification, setShowNotification] = useState(true);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -136,8 +153,8 @@ const PaymentConfirmation = () => {
         {/* Message Box */}
         <div className="border-2 border-primary rounded-xl p-4 bg-card">
           <p className="text-foreground text-center">
-            Hello dear user, kindly make a one-time payment of ₦5,700 to purchase
-            your personal activation code.
+            Hello dear user, kindly make a one-time payment of <span className="font-bold text-primary">₦{selectedPrice.toLocaleString()}</span> to purchase
+            your <span className="font-bold">{selectedName}</span> activation code.
           </p>
         </div>
 
@@ -182,7 +199,7 @@ const PaymentConfirmation = () => {
           <p>🧾 Acc: 8142355686</p>
           <p>👤 Name: YILKWAM MANCIT</p>
           <p>🏦 Bank: MOMO PSB</p>
-          <p>💰 Amount: ₦5,700</p>
+          <p>💰 Amount: ₦{selectedPrice.toLocaleString()}</p>
         </div>
 
         {/* Upload Section */}

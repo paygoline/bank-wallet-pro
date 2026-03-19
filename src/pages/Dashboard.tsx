@@ -10,6 +10,20 @@ import { Progress } from "@/components/ui/progress";
 
 const MINING_COOLDOWN_KEY = "last_mining_timestamp";
 
+const PLAN_EARNINGS: Record<string, number> = {
+  basic: 86000,
+  silver: 250000,
+  gold: 750000,
+  platinum: 2000000,
+};
+
+const PLAN_NAMES: Record<string, string> = {
+  basic: "Basic Miner",
+  silver: "Silver Miner",
+  gold: "Gold Miner",
+  platinum: "Platinum Miner",
+};
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const accountName = localStorage.getItem("user_account_name") || "Account Name";
@@ -95,11 +109,15 @@ const Dashboard = () => {
     setMiningStep(miningSteps[0].text);
 
     let stepIndex = 0;
+    const activePlan = localStorage.getItem("selected_miner_plan") || "basic";
+    const miningReward = PLAN_EARNINGS[activePlan] || 86000;
+    const planName = PLAN_NAMES[activePlan] || "Basic Miner";
+
     const runStep = () => {
       if (stepIndex >= miningSteps.length) {
         setTimeout(() => {
           setIsMining(false);
-          const newBalance = walletBalance + 86000;
+          const newBalance = walletBalance + miningReward;
           setWalletBalance(newBalance);
           localStorage.setItem("wallet_balance", newBalance.toString());
           localStorage.setItem(MINING_COOLDOWN_KEY, Date.now().toString());
@@ -107,7 +125,7 @@ const Dashboard = () => {
 
           const newTx = {
             type: "Mining",
-            amount: 86000,
+            amount: miningReward,
             date: new Date().toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
             status: "Completed",
           };
@@ -117,7 +135,7 @@ const Dashboard = () => {
 
           toast({
             title: "🛡️ Account Credited",
-            description: `Dear ${accountName}, ₦86,000.00 has been successfully credited to your wallet.`,
+            description: `Dear ${accountName}, ₦${miningReward.toLocaleString()}.00 has been successfully credited to your wallet.`,
             duration: 5000,
             className: "bg-card text-foreground border-primary/30 rounded-xl",
           });
@@ -227,7 +245,7 @@ const Dashboard = () => {
               </div>
               <div className="bg-card rounded-lg p-3 border border-border">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Est. Reward</p>
-                <p className="text-sm font-bold text-primary">₦{(miningProgress * 860).toLocaleString()}</p>
+                <p className="text-sm font-bold text-primary">₦{(miningProgress * (PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000) / 100).toLocaleString()}</p>
               </div>
             </div>
 
@@ -374,7 +392,7 @@ const Dashboard = () => {
               Start Mining
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
-              Your current plan is <span className="text-primary font-semibold">Free Miner</span>. You can mine <span className="text-primary font-semibold">₦86,000.00</span> once per day. Do you want to start mining now?
+              Your current plan is <span className="text-primary font-semibold">{PLAN_NAMES[localStorage.getItem("selected_miner_plan") || "basic"] || "Basic Miner"}</span>. You can mine <span className="text-primary font-semibold">₦{(PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000).toLocaleString()}.00</span> once per day. Do you want to start mining now?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:justify-end">
@@ -404,7 +422,7 @@ const Dashboard = () => {
               Mining Successful
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
-              You have successfully mined <span className="text-primary font-semibold">₦86,000.00</span> to your wallet. You can mine again in 24 hours or upgrade your plan for more.
+              You have successfully mined <span className="text-primary font-semibold">₦{(PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000).toLocaleString()}.00</span> to your wallet. You can mine again in 24 hours or upgrade your plan for more.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex justify-end">
