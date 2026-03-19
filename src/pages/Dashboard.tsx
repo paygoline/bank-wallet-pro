@@ -109,11 +109,15 @@ const Dashboard = () => {
     setMiningStep(miningSteps[0].text);
 
     let stepIndex = 0;
+    const activePlan = localStorage.getItem("selected_miner_plan") || "basic";
+    const miningReward = PLAN_EARNINGS[activePlan] || 86000;
+    const planName = PLAN_NAMES[activePlan] || "Basic Miner";
+
     const runStep = () => {
       if (stepIndex >= miningSteps.length) {
         setTimeout(() => {
           setIsMining(false);
-          const newBalance = walletBalance + 86000;
+          const newBalance = walletBalance + miningReward;
           setWalletBalance(newBalance);
           localStorage.setItem("wallet_balance", newBalance.toString());
           localStorage.setItem(MINING_COOLDOWN_KEY, Date.now().toString());
@@ -121,7 +125,7 @@ const Dashboard = () => {
 
           const newTx = {
             type: "Mining",
-            amount: 86000,
+            amount: miningReward,
             date: new Date().toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
             status: "Completed",
           };
@@ -131,7 +135,7 @@ const Dashboard = () => {
 
           toast({
             title: "🛡️ Account Credited",
-            description: `Dear ${accountName}, ₦86,000.00 has been successfully credited to your wallet.`,
+            description: `Dear ${accountName}, ₦${miningReward.toLocaleString()}.00 has been successfully credited to your wallet.`,
             duration: 5000,
             className: "bg-card text-foreground border-primary/30 rounded-xl",
           });
