@@ -392,7 +392,7 @@ const Dashboard = () => {
               Start Mining
             </DialogTitle>
             <DialogDescription className="text-muted-foreground text-left pt-4 leading-relaxed text-sm">
-              Your current plan is <span className="text-primary font-semibold">Free Miner</span>. You can mine <span className="text-primary font-semibold">₦86,000.00</span> once per day. Do you want to start mining now?
+              Your current plan is <span className="text-primary font-semibold">{PLAN_NAMES[localStorage.getItem("selected_miner_plan") || "basic"] || "Basic Miner"}</span>. You can mine <span className="text-primary font-semibold">₦{(PLAN_EARNINGS[localStorage.getItem("selected_miner_plan") || "basic"] || 86000).toLocaleString()}.00</span> once per day. Do you want to start mining now?
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:justify-end">
