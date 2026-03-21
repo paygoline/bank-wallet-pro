@@ -302,9 +302,20 @@ const Dashboard = () => {
             </div>
             <div className="flex-1">
               <p className="text-sm font-bold text-foreground mb-1">Unlock Withdrawals</p>
-              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                You're earning ₦86,000/day with free mining! Purchase an activation code starting at ₦5,700 to withdraw your funds and unlock premium plans.
+              <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+                You've mined <span className="text-primary font-semibold">₦{walletBalance.toLocaleString("en-NG")}</span> so far — activate to withdraw!
               </p>
+              {/* Progress tracker */}
+              <div className="mb-3 space-y-1.5">
+                <Progress value={Math.min((walletBalance / 500000) * 100, 100)} className="h-2 bg-muted" />
+                <div className="flex justify-between items-center">
+                  <p className="text-[10px] text-muted-foreground">₦0</p>
+                  <p className="text-[10px] text-primary font-semibold">
+                    {walletBalance >= 500000 ? "🎉 Ready to activate!" : `${Math.min(Math.round((walletBalance / 500000) * 100), 100)}% to ₦500,000 goal`}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">₦500K</p>
+                </div>
+              </div>
               <Button
                 size="sm"
                 onClick={() => navigate("/buy-code")}
