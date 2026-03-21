@@ -162,8 +162,8 @@ const Dashboard = () => {
   const handleWithdraw = () => {
     if (!isMinerActivated) {
       toast({
-        title: "🔒 Miner Not Activated",
-        description: "You must purchase and activate your miner (₦5,700) before you can withdraw.",
+        title: "🔒 Activation Required",
+        description: "You must purchase an activation code before you can withdraw your mined funds.",
         duration: 4000,
         className: "bg-card text-foreground border-destructive/30 rounded-xl",
       });
