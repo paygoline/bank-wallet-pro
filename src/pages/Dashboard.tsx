@@ -292,6 +292,31 @@ const Dashboard = () => {
         </CardContent>
       </Card>
 
+      {/* Activation Banner for Free Miners */}
+      {!isMinerActivated && (
+        <div className="mb-4 p-4 bg-gradient-to-r from-primary/10 to-accent/10 rounded-xl border border-primary/20 relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="flex items-start gap-3 relative">
+            <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-foreground mb-1">Unlock Withdrawals</p>
+              <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                You're earning ₦86,000/day with free mining! Purchase an activation code starting at ₦5,700 to withdraw your funds and unlock premium plans.
+              </p>
+              <Button
+                size="sm"
+                onClick={() => navigate("/buy-code")}
+                className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold px-4 h-8 rounded-lg"
+              >
+                Activate Now — ₦5,700
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Mining Status */}
       {!canMineToday && (
         <div className="flex items-center gap-2 mb-4 px-3 py-2 bg-card rounded-lg border border-border">
