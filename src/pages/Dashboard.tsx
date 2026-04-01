@@ -1,4 +1,4 @@
-import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Pickaxe, Users } from "lucide-react";
+import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Pickaxe, Users, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
