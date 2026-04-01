@@ -1,4 +1,4 @@
-import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Pickaxe, Users } from "lucide-react";
+import { CreditCard, Send, Landmark, ShieldCheck, Clock, TrendingUp, User, Pickaxe, Users, AlertCircle, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -35,12 +35,41 @@ const Dashboard = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
-  // Sync wallet and transactions from localStorage when returning to dashboard
+  // Track withdrawal notifications already shown
+  const [shownNotifications, setShownNotifications] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("shown_withdrawal_notifications");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  // Sync wallet, transactions, and check withdrawal status updates
   useEffect(() => {
     const saved = localStorage.getItem("wallet_balance");
     if (saved !== null) setWalletBalance(parseFloat(saved));
     const savedTx = localStorage.getItem("transactions");
     if (savedTx) setTransactions(JSON.parse(savedTx));
+
+    // Check for approved/rejected withdrawal notifications
+    const requests = JSON.parse(localStorage.getItem("withdrawal_requests") || "[]");
+    const newShown = new Set(shownNotifications);
+    requests.forEach((req: any) => {
+      if ((req.status === "approved" || req.status === "rejected") && !shownNotifications.has(req.id)) {
+        newShown.add(req.id);
+        setTimeout(() => {
+          toast({
+            title: req.status === "approved" ? "✅ Withdrawal Approved" : "❌ Withdrawal Rejected",
+            description: req.status === "approved"
+              ? `Your withdrawal of ₦${req.amount.toLocaleString()} has been approved and processed.`
+              : `Your withdrawal of ₦${req.amount.toLocaleString()} was rejected by admin.`,
+            duration: 6000,
+            className: `bg-card text-foreground ${req.status === "approved" ? "border-primary/30" : "border-destructive/30"} rounded-xl`,
+          });
+        }, 500);
+      }
+    });
+    if (newShown.size !== shownNotifications.size) {
+      setShownNotifications(newShown);
+      localStorage.setItem("shown_withdrawal_notifications", JSON.stringify([...newShown]));
+    }
   }, []);
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false);
   const [isMining, setIsMining] = useState(false);
@@ -335,6 +364,44 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground">Next mine available in: <span className="text-primary font-semibold">{cooldownRemaining}</span></p>
         </div>
       )}
+      {/* Withdrawal Status Tracker */}
+      {(() => {
+        const requests = JSON.parse(localStorage.getItem("withdrawal_requests") || "[]");
+        const recentRequests = requests.slice(0, 3);
+        if (recentRequests.length === 0) return null;
+        return (
+          <div className="mb-4 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              Withdrawal Requests
+            </p>
+            {recentRequests.map((req: any) => (
+              <div key={req.id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    req.status === "pending" ? "bg-yellow-500/15" :
+                    req.status === "approved" ? "bg-primary/15" : "bg-destructive/15"
+                  }`}>
+                    {req.status === "pending" && <Clock className="w-3.5 h-3.5 text-yellow-500" />}
+                    {req.status === "approved" && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                    {req.status === "rejected" && <XCircle className="w-3.5 h-3.5 text-destructive" />}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">₦{req.amount.toLocaleString()}</p>
+                    <p className="text-[10px] text-muted-foreground">{req.date}</p>
+                  </div>
+                </div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                  req.status === "pending" ? "text-yellow-500" :
+                  req.status === "approved" ? "text-primary" : "text-destructive"
+                }`}>
+                  {req.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 mb-6">
