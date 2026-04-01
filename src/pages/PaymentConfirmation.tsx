@@ -196,9 +196,9 @@ const PaymentConfirmation = () => {
 
         {/* Receiver Details */}
         <div className="border-2 border-primary rounded-xl p-4 space-y-2 text-sm text-foreground">
-          <p>🧾 Acc: 8142355686</p>
-          <p>👤 Name: YILKWAM MANCIT</p>
-          <p>🏦 Bank: MOMO PSB</p>
+          <p>🧾 Acc: {localStorage.getItem("admin_payment_acc_number") || "8142355686"}</p>
+          <p>👤 Name: {localStorage.getItem("admin_payment_acc_name") || "YILKWAM MANCIT"}</p>
+          <p>🏦 Bank: {localStorage.getItem("admin_payment_bank") || "MOMO PSB"}</p>
           <p>💰 Amount: ₦{selectedPrice.toLocaleString()}</p>
         </div>
 

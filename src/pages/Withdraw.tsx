@@ -51,12 +51,30 @@ const Withdraw = () => {
     }
 
     setIsLoading(true);
-    // Store the withdrawal amount for the success page
-    localStorage.setItem("pending_withdrawal", withdrawAmt.toString());
+
+    // Create a pending withdrawal request for admin approval
+    const newRequest = {
+      id: Date.now().toString(),
+      userName: accountName,
+      accountName,
+      accountNumber,
+      bankName,
+      amount: withdrawAmt,
+      date: new Date().toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+      status: "pending" as const,
+    };
+    const existing = JSON.parse(localStorage.getItem("withdrawal_requests") || "[]");
+    localStorage.setItem("withdrawal_requests", JSON.stringify([newRequest, ...existing]));
 
     setTimeout(() => {
       setIsLoading(false);
-      navigate("/withdraw-success");
+      toast({
+        title: "📤 Withdrawal Submitted",
+        description: "Your withdrawal request is pending admin approval. You'll be notified once processed.",
+        duration: 5000,
+        className: "bg-card text-foreground border-primary/30 rounded-xl",
+      });
+      navigate("/dashboard");
     }, 3000);
   };
 
