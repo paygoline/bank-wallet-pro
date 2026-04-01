@@ -14,6 +14,7 @@ import ActivationSuccess from "./pages/ActivationSuccess";
 import WithdrawSuccess from "./pages/WithdrawSuccess";
 import MinerPlans from "./pages/MinerPlans";
 import Referral from "./pages/Referral";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
