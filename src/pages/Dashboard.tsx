@@ -364,6 +364,44 @@ const Dashboard = () => {
           <p className="text-xs text-muted-foreground">Next mine available in: <span className="text-primary font-semibold">{cooldownRemaining}</span></p>
         </div>
       )}
+      {/* Withdrawal Status Tracker */}
+      {(() => {
+        const requests = JSON.parse(localStorage.getItem("withdrawal_requests") || "[]");
+        const recentRequests = requests.slice(0, 3);
+        if (recentRequests.length === 0) return null;
+        return (
+          <div className="mb-4 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+              <AlertCircle className="w-3.5 h-3.5" />
+              Withdrawal Requests
+            </p>
+            {recentRequests.map((req: any) => (
+              <div key={req.id} className="flex items-center justify-between bg-card rounded-lg p-3 border border-border">
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                    req.status === "pending" ? "bg-yellow-500/15" :
+                    req.status === "approved" ? "bg-primary/15" : "bg-destructive/15"
+                  }`}>
+                    {req.status === "pending" && <Clock className="w-3.5 h-3.5 text-yellow-500" />}
+                    {req.status === "approved" && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                    {req.status === "rejected" && <XCircle className="w-3.5 h-3.5 text-destructive" />}
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">₦{req.amount.toLocaleString()}</p>
+                    <p className="text-[10px] text-muted-foreground">{req.date}</p>
+                  </div>
+                </div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider ${
+                  req.status === "pending" ? "text-yellow-500" :
+                  req.status === "approved" ? "text-primary" : "text-destructive"
+                }`}>
+                  {req.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        );
+      })()}
 
       {/* Action Buttons */}
       <div className="grid grid-cols-2 gap-3 mb-6">
