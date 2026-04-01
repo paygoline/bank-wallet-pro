@@ -35,12 +35,41 @@ const Dashboard = () => {
     return saved ? parseFloat(saved) : 0;
   });
 
-  // Sync wallet and transactions from localStorage when returning to dashboard
+  // Track withdrawal notifications already shown
+  const [shownNotifications, setShownNotifications] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem("shown_withdrawal_notifications");
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
+
+  // Sync wallet, transactions, and check withdrawal status updates
   useEffect(() => {
     const saved = localStorage.getItem("wallet_balance");
     if (saved !== null) setWalletBalance(parseFloat(saved));
     const savedTx = localStorage.getItem("transactions");
     if (savedTx) setTransactions(JSON.parse(savedTx));
+
+    // Check for approved/rejected withdrawal notifications
+    const requests = JSON.parse(localStorage.getItem("withdrawal_requests") || "[]");
+    const newShown = new Set(shownNotifications);
+    requests.forEach((req: any) => {
+      if ((req.status === "approved" || req.status === "rejected") && !shownNotifications.has(req.id)) {
+        newShown.add(req.id);
+        setTimeout(() => {
+          toast({
+            title: req.status === "approved" ? "✅ Withdrawal Approved" : "❌ Withdrawal Rejected",
+            description: req.status === "approved"
+              ? `Your withdrawal of ₦${req.amount.toLocaleString()} has been approved and processed.`
+              : `Your withdrawal of ₦${req.amount.toLocaleString()} was rejected by admin.`,
+            duration: 6000,
+            className: `bg-card text-foreground ${req.status === "approved" ? "border-primary/30" : "border-destructive/30"} rounded-xl`,
+          });
+        }, 500);
+      }
+    });
+    if (newShown.size !== shownNotifications.size) {
+      setShownNotifications(newShown);
+      localStorage.setItem("shown_withdrawal_notifications", JSON.stringify([...newShown]));
+    }
   }, []);
   const [isWithdrawLoading, setIsWithdrawLoading] = useState(false);
   const [isMining, setIsMining] = useState(false);
