@@ -230,6 +230,55 @@ const Admin = () => {
           )}
         </TabsContent>
 
+        {/* Users Tab */}
+        <TabsContent value="users" className="space-y-3">
+          {registeredUsers.length === 0 ? (
+            <div className="text-center py-16">
+              <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No registered users yet</p>
+            </div>
+          ) : (
+            registeredUsers.map((user, idx) => {
+              const userWithdrawals = withdrawalRequests.filter(r => r.accountNumber === user.accountNumber);
+              const totalWithdrawn = userWithdrawals.filter(r => r.status === "approved").reduce((sum, r) => sum + r.amount, 0);
+              const pendingWithdrawals = userWithdrawals.filter(r => r.status === "pending").length;
+              return (
+                <Card key={idx} className="border-border">
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center">
+                          <User className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{user.accountName}</p>
+                          <p className="text-[10px] text-muted-foreground">{user.phone}</p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-[10px] border-primary/30 text-primary">
+                        {user.accountNumber}
+                      </Badge>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-3">
+                      <div className="bg-muted/50 rounded-lg p-2 text-center">
+                        <p className="text-[10px] text-muted-foreground">Total Withdrawn</p>
+                        <p className="text-xs font-bold text-foreground">₦{totalWithdrawn.toLocaleString()}</p>
+                      </div>
+                      <div className="bg-muted/50 rounded-lg p-2 text-center">
+                        <p className="text-[10px] text-muted-foreground">Pending</p>
+                        <p className="text-xs font-bold text-foreground">{pendingWithdrawals} request{pendingWithdrawals !== 1 ? "s" : ""}</p>
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Joined: {new Date(user.registeredAt).toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric" })}
+                    </p>
+                  </CardContent>
+                </Card>
+              );
+            })
+          )}
+        </TabsContent>
+
         {/* Payment Settings Tab */}
         <TabsContent value="settings" className="space-y-4">
           <Card className="border-border">
