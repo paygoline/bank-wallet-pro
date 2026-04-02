@@ -27,6 +27,7 @@ const PLAN_NAMES: Record<string, string> = {
 const PaymentConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { accountNumber, accountName, bankName, plan } = location.state || {};
   const planId = localStorage.getItem("selected_miner_plan") || "basic";
   const selectedPrice = plan?.price || PLAN_PRICES[planId] || 5700;
@@ -36,6 +37,18 @@ const PaymentConfirmation = () => {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPaymentNotice, setShowPaymentNotice] = useState(true);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+
+  const payAccNumber = localStorage.getItem("admin_payment_acc_number") || "8142355686";
+  const payAccName = localStorage.getItem("admin_payment_acc_name") || "YILKWAM MANCIT";
+  const payBank = localStorage.getItem("admin_payment_bank") || "MOMO PSB";
+
+  const handleCopy = (text: string, field: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedField(field);
+    toast({ title: "Copied!", description: `${field} copied to clipboard` });
+    setTimeout(() => setCopiedField(null), 2000);
+  };
 
   useEffect(() => {
     const interval = setInterval(() => {
