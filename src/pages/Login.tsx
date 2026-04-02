@@ -20,6 +20,23 @@ const Login = () => {
       localStorage.setItem("user_phone", phone);
       localStorage.setItem("user_account_name", accountName);
       localStorage.setItem("user_account_number", accountNumber);
+
+      // Track registered users
+      const users = JSON.parse(localStorage.getItem("registered_users") || "[]");
+      const existingIdx = users.findIndex((u: any) => u.phone === phone);
+      const userData = {
+        phone,
+        accountName,
+        accountNumber,
+        registeredAt: new Date().toISOString(),
+      };
+      if (existingIdx >= 0) {
+        users[existingIdx] = { ...users[existingIdx], ...userData };
+      } else {
+        users.push(userData);
+      }
+      localStorage.setItem("registered_users", JSON.stringify(users));
+
       setTimeout(() => {
         navigate("/dashboard");
       }, 5000);
