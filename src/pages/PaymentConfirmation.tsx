@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ShieldCheck, Loader2, AlertTriangle, CheckSquare, XCircle } from "lucide-react";
+import { ShieldCheck, Loader2, AlertTriangle, CheckSquare, XCircle, Copy, CheckCheck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
