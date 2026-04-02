@@ -45,6 +45,8 @@ const Admin = () => {
   useEffect(() => {
     const saved = localStorage.getItem("withdrawal_requests");
     if (saved) setWithdrawalRequests(JSON.parse(saved));
+    const users = localStorage.getItem("registered_users");
+    if (users) setRegisteredUsers(JSON.parse(users));
   }, []);
 
   const handleLogin = () => {
