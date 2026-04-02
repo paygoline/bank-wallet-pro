@@ -208,12 +208,37 @@ const PaymentConfirmation = () => {
           TRANSFER PENDING
         </div>
 
-        {/* Receiver Details */}
-        <div className="border-2 border-primary rounded-xl p-4 space-y-2 text-sm text-foreground">
-          <p>🧾 Acc: {localStorage.getItem("admin_payment_acc_number") || "8142355686"}</p>
-          <p>👤 Name: {localStorage.getItem("admin_payment_acc_name") || "YILKWAM MANCIT"}</p>
-          <p>🏦 Bank: {localStorage.getItem("admin_payment_bank") || "MOMO PSB"}</p>
-          <p>💰 Amount: ₦{selectedPrice.toLocaleString()}</p>
+        {/* Receiver Details - Copyable */}
+        <div className="border-2 border-primary rounded-xl p-4 space-y-3 text-sm text-foreground">
+          <h3 className="font-bold text-center text-primary mb-2">Transfer To This Account</h3>
+          {[
+            { label: "Account Number", value: payAccNumber, field: "Account Number", icon: "🧾" },
+            { label: "Account Name", value: payAccName, field: "Account Name", icon: "👤" },
+            { label: "Bank", value: payBank, field: "Bank", icon: "🏦" },
+            { label: "Amount", value: `₦${selectedPrice.toLocaleString()}`, field: "Amount", icon: "💰" },
+          ].map((item) => (
+            <div key={item.field} className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <span>{item.icon}</span>
+                <div>
+                  <p className="text-xs text-muted-foreground">{item.label}</p>
+                  <p className="font-semibold text-foreground">{item.value}</p>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => handleCopy(item.field === "Amount" ? selectedPrice.toString() : item.value, item.field)}
+              >
+                {copiedField === item.field ? (
+                  <CheckCheck className="w-4 h-4 text-primary" />
+                ) : (
+                  <Copy className="w-4 h-4 text-muted-foreground" />
+                )}
+              </Button>
+            </div>
+          ))}
         </div>
 
         {/* Upload Section */}
