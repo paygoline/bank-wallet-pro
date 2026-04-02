@@ -19,7 +19,7 @@ interface WithdrawalRequest {
   status: "pending" | "approved" | "rejected";
 }
 
-const ADMIN_PIN = "1234";
+const ADMIN_PIN = "258025";
 
 const Admin = () => {
   const navigate = useNavigate();
