@@ -163,8 +163,11 @@ const Admin = () => {
           <TabsTrigger value="withdrawals" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Withdrawals
           </TabsTrigger>
+          <TabsTrigger value="users" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Users
+          </TabsTrigger>
           <TabsTrigger value="settings" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-            Payment Settings
+            Settings
           </TabsTrigger>
         </TabsList>
 
