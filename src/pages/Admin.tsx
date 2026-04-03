@@ -199,7 +199,7 @@ const Admin = () => {
           <p className="text-xs text-muted-foreground">Manage withdrawals & settings</p>
         </div>
         <Badge variant="outline" className="border-primary text-primary">
-          {pendingCount} pending
+          {pendingCount + pendingPayments} pending
         </Badge>
       </div>
 
