@@ -43,7 +43,9 @@ const Admin = () => {
   const [showPin, setShowPin] = useState(false);
 
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
+  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+  const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
 
   // Payment account details
   const [paymentAccNumber, setPaymentAccNumber] = useState(() =>
