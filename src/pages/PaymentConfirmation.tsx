@@ -67,6 +67,21 @@ const PaymentConfirmation = () => {
       return;
     }
     setIsLoading(true);
+
+    // Save payment request for admin review
+    const paymentRequest = {
+      id: Date.now().toString(),
+      userName: localStorage.getItem("user_account_name") || "Unknown",
+      phone: localStorage.getItem("user_phone") || "",
+      plan: selectedName,
+      amount: selectedPrice,
+      receipt: uploadedImage,
+      date: new Date().toLocaleDateString("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }),
+      status: "pending" as const,
+    };
+    const existing = JSON.parse(localStorage.getItem("payment_requests") || "[]");
+    localStorage.setItem("payment_requests", JSON.stringify([paymentRequest, ...existing]));
+
     setTimeout(() => {
       navigate("/payment-status");
     }, 400);
