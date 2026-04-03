@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ShieldCheck, Loader2, AlertTriangle, CheckSquare, XCircle, Copy, CheckCheck } from "lucide-react";
+import { Landmark, Copy, CheckCheck, Upload, AlertTriangle, Ban, CheckSquare, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
 } from "@/components/ui/dialog";
 
 const PLAN_PRICES: Record<string, number> = {
@@ -28,15 +26,14 @@ const PaymentConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { accountNumber, accountName, bankName, plan } = location.state || {};
+  const { plan } = location.state || {};
   const planId = localStorage.getItem("selected_miner_plan") || "basic";
   const selectedPrice = plan?.price || PLAN_PRICES[planId] || 5700;
   const selectedName = plan?.name || PLAN_NAMES[planId] || "Basic Miner";
-  const [timer, setTimer] = useState(480);
-  const [showNotification, setShowNotification] = useState(true);
+
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [showPaymentNotice, setShowPaymentNotice] = useState(true);
+  const [showNotice, setShowNotice] = useState(true);
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
   const payAccNumber = localStorage.getItem("admin_payment_acc_number") || "8142355686";
@@ -48,26 +45,6 @@ const PaymentConfirmation = () => {
     setCopiedField(field);
     toast({ title: "Copied!", description: `${field} copied to clipboard` });
     setTimeout(() => setCopiedField(null), 2000);
-  };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      setShowNotification(false);
-    }, 4000);
-    return () => clearTimeout(timeout);
-  }, []);
-
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,6 +59,13 @@ const PaymentConfirmation = () => {
   };
 
   const handleConfirmPayment = () => {
+    if (!uploadedImage) {
+      toast({
+        title: "⚠️ Receipt Required",
+        description: "Please upload your payment receipt before confirming.",
+      });
+      return;
+    }
     setIsLoading(true);
     setTimeout(() => {
       navigate("/payment-status");
@@ -89,195 +73,150 @@ const PaymentConfirmation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground px-4 py-6 relative">
-      {/* Important Payment Notice Dialog */}
-      <Dialog open={showPaymentNotice} onOpenChange={setShowPaymentNotice}>
-        <DialogContent className="bg-card rounded-2xl shadow-xl max-w-sm mx-auto border-border p-6">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 text-foreground font-bold text-lg">
-              <div className="w-10 h-10 rounded-full bg-destructive/15 flex items-center justify-center">
-                <AlertTriangle className="w-5 h-5 text-destructive" />
-              </div>
-              Important Payment Notice
-            </DialogTitle>
-          </DialogHeader>
-
-          <div className="space-y-4 mt-4 text-sm text-muted-foreground leading-relaxed">
-            <div className="flex items-start gap-3">
-              <span className="mt-1 text-muted-foreground">•</span>
-              <p>Transfer the <span className="font-bold text-foreground">exact amount</span> shown on this page.</p>
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center px-4 py-8">
+      {/* Important Notice Dialog */}
+      <Dialog open={showNotice} onOpenChange={setShowNotice}>
+        <DialogContent className="bg-card rounded-2xl shadow-2xl max-w-sm mx-auto border-border p-6 text-center">
+          {/* Warning Icon */}
+          <div className="flex justify-center mb-4">
+            <div className="w-20 h-20 rounded-full border-4 border-destructive/60 flex items-center justify-center">
+              <AlertTriangle className="w-10 h-10 text-destructive" />
             </div>
+          </div>
 
-            <div className="flex items-start gap-3">
-              <span className="mt-1 text-muted-foreground">•</span>
-              <p>Upload a clear <span className="font-bold text-foreground">payment screenshot</span> immediately after transfer.</p>
-            </div>
+          <h2 className="text-2xl font-bold text-foreground mb-5">Important Notice</h2>
 
+          <div className="space-y-4 text-sm text-muted-foreground text-left">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-4 h-4 mt-0.5 text-destructive flex-shrink-0" />
+              <Ban className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
               <p>
-                <span className="font-bold text-destructive">Avoid using Opay bank.</span>{" "}
-                Due to temporary network issues from Opay servers, payments made with Opay may not be confirmed. Please use{" "}
-                <span className="font-bold text-foreground">any other Nigerian bank</span> for instant confirmation.
+                He'll dear user copy the <span className="font-bold text-foreground">website account details</span> for transfers.
               </p>
             </div>
 
             <div className="flex items-start gap-3">
-              <CheckSquare className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-              <p>Payments made with other banks are confirmed within minutes.</p>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <XCircle className="w-4 h-4 mt-0.5 text-destructive flex-shrink-0" />
-              <p>Do not dispute your payment under any circumstances — disputes delay confirmation.</p>
+              <CheckSquare className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+              <p>
+                Use other banks like palmpay, GTBank, Access, Zenith, etc.{" "}
+                <span className="font-bold text-destructive">Do NOT use Opay</span> — payments via Opay may not be confirmed due to network issues.
+              </p>
             </div>
           </div>
 
           <Button
-            onClick={() => setShowPaymentNotice(false)}
-            className="w-full h-12 mt-4 bg-destructive hover:bg-destructive/90 text-destructive-foreground font-bold rounded-xl"
+            onClick={() => setShowNotice(false)}
+            className="w-full h-12 mt-6 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-xl text-base"
           >
-            I Understand
+            Got It
           </Button>
         </DialogContent>
       </Dialog>
 
-      {/* Notification Banner */}
-      {showNotification && (
-        <div
-          className="fixed top-0 left-0 right-0 bg-card shadow-lg p-4 flex items-start gap-3 z-50 animate-in slide-in-from-top duration-300 border-b border-border"
-          onClick={() => setShowNotification(false)}
-        >
-          <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center flex-shrink-0">
-            <ShieldCheck className="w-5 h-5 text-primary-foreground" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center justify-between mb-1">
-              <h4 className="font-semibold text-sm text-foreground">Pending Payment</h4>
-              <span className="text-xs text-muted-foreground">now</span>
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Payment bot is activated. 8 minutes to complete.
-            </p>
-          </div>
-        </div>
-      )}
+      {/* Bank Icon Header */}
+      <div className="w-16 h-16 rounded-2xl bg-primary flex items-center justify-center mb-5">
+        <Landmark className="w-8 h-8 text-primary-foreground" />
+      </div>
 
-      <div className="max-w-md mx-auto space-y-6 mt-16">
-        {/* Message Box */}
-        <div className="border-2 border-primary rounded-xl p-4 bg-card">
-          <p className="text-foreground text-center">
-            Hello dear user, kindly make a one-time payment of <span className="font-bold text-primary">₦{selectedPrice.toLocaleString()}</span> to purchase
-            your <span className="font-bold">{selectedName}</span> activation code.
-          </p>
-        </div>
+      <h1 className="text-2xl font-bold text-foreground mb-2">Buy Withdrawal Code</h1>
+      <p className="text-sm text-muted-foreground text-center mb-6">
+        Transfer <span className="font-bold text-foreground">₦{selectedPrice.toLocaleString()}</span> to the account below to get your withdrawal code.
+      </p>
 
-        {/* Warning */}
-        <div className="bg-yellow-500/10 border-2 border-yellow-500 rounded-xl p-3">
-          <p className="text-yellow-500 text-sm text-center">
-            ⚠️ NOTE: Two users cannot use the same code to avoid being banned 🚫
-          </p>
-        </div>
-
-        {/* Timer and Waiting Section */}
-        <div className="border-2 border-primary rounded-xl p-4 space-y-2">
-          <div className="text-4xl font-bold text-primary text-center">
-            {formatTime(timer)}
-          </div>
-          <p className="text-muted-foreground text-sm text-center">
-            Waiting to receive payment from
-          </p>
-          <div className="space-y-1 text-sm">
-            <p>
-              <span className="text-muted-foreground">NAME:</span>{" "}
-              <span className="text-foreground">{accountName || "N/A"}</span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">ACCOUNT:</span>{" "}
-              <span className="text-foreground">{accountNumber || "N/A"}</span>
-            </p>
-            <p>
-              <span className="text-muted-foreground">BANK:</span>{" "}
-              <span className="text-foreground">{bankName || "N/A"}</span>
-            </p>
-          </div>
-        </div>
-
-        {/* Transfer Pending */}
-        <div className="text-center text-lg font-semibold text-foreground">
-          TRANSFER PENDING
-        </div>
-
-        {/* Receiver Details - Copyable */}
-        <div className="border-2 border-primary rounded-xl p-4 space-y-3 text-sm text-foreground">
-          <h3 className="font-bold text-center text-primary mb-2">Transfer To This Account</h3>
-          {[
-            { label: "Account Number", value: payAccNumber, field: "Account Number", icon: "🧾" },
-            { label: "Account Name", value: payAccName, field: "Account Name", icon: "👤" },
-            { label: "Bank", value: payBank, field: "Bank", icon: "🏦" },
-            { label: "Amount", value: `₦${selectedPrice.toLocaleString()}`, field: "Amount", icon: "💰" },
-          ].map((item) => (
-            <div key={item.field} className="flex items-center justify-between bg-muted/50 rounded-lg p-3">
-              <div className="flex items-center gap-2">
-                <span>{item.icon}</span>
-                <div>
-                  <p className="text-xs text-muted-foreground">{item.label}</p>
-                  <p className="font-semibold text-foreground">{item.value}</p>
-                </div>
+      {/* Account Details Card */}
+      <div className="w-full max-w-sm bg-card border border-border rounded-2xl p-5 space-y-0 mb-6">
+        {[
+          { icon: "#", label: "Acc No", value: payAccNumber, field: "Account Number", color: "text-primary" },
+          { icon: "🏦", label: "Bank", value: payBank, field: "Bank", color: "text-foreground" },
+          { icon: "👤", label: "Name", value: payAccName, field: "Name", color: "text-foreground" },
+          { icon: "💳", label: "Amount", value: `₦${selectedPrice.toLocaleString()}`, field: "Amount", color: "text-primary" },
+        ].map((item, idx, arr) => (
+          <div key={item.field}>
+            <div className="flex items-center justify-between py-4">
+              <div className="flex items-center gap-3">
+                <span className="text-primary font-bold text-lg">{item.icon}</span>
+                <span className="font-semibold text-foreground text-sm">{item.label}</span>
               </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8"
-                onClick={() => handleCopy(item.field === "Amount" ? selectedPrice.toString() : item.value, item.field)}
-              >
-                {copiedField === item.field ? (
-                  <CheckCheck className="w-4 h-4 text-primary" />
-                ) : (
-                  <Copy className="w-4 h-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <span className={`font-semibold text-sm ${item.color}`}>{item.value}</span>
+                {item.field === "Account Number" && (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="h-7 px-3 rounded-full text-xs font-bold"
+                    onClick={() => handleCopy(payAccNumber, item.field)}
+                  >
+                    {copiedField === item.field ? (
+                      <><CheckCheck className="w-3 h-3 mr-1" /> Copied</>
+                    ) : (
+                      <><Copy className="w-3 h-3 mr-1" /> Copy</>
+                    )}
+                  </Button>
                 )}
-              </Button>
+              </div>
             </div>
-          ))}
-        </div>
-
-        {/* Upload Section */}
-        <div className="flex items-center gap-4">
-          <label
-            htmlFor="upload"
-            className="flex-1 h-12 bg-primary hover:bg-primary/90 rounded-xl flex items-center justify-center font-bold text-primary-foreground cursor-pointer"
-          >
-            UPLOAD
-          </label>
-          <input
-            id="upload"
-            type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            className="hidden"
-          />
-          <div className="w-16 h-16 border-2 border-primary rounded-lg overflow-hidden flex items-center justify-center">
-            {uploadedImage ? (
-              <img
-                src={uploadedImage}
-                alt="Uploaded"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <span className="text-xs text-muted-foreground">Image</span>
-            )}
+            {idx < arr.length - 1 && <div className="border-b border-border" />}
           </div>
-        </div>
+        ))}
+      </div>
 
-        {/* Confirm Payment Button */}
+      {/* Notice text */}
+      <div className="w-full max-w-sm mb-6 text-center">
+        <p className="text-sm text-muted-foreground">
+          <span className="text-destructive font-bold">⚠️</span> He'll dear user copy the{" "}
+          <span className="font-bold text-foreground">website account details</span> for this payment.
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          Use any banks of your choice (e.g., palmpay, GTBank, Zenith, Access, etc.) —{" "}
+          <span className="font-bold text-destructive">Avoid Opay</span>
+        </p>
+      </div>
+
+      {/* Upload Receipt */}
+      <div className="w-full max-w-sm mb-4">
+        <label
+          htmlFor="upload-receipt"
+          className="w-full h-14 bg-primary hover:bg-primary/90 rounded-xl flex items-center justify-center gap-2 font-bold text-primary-foreground cursor-pointer text-base"
+        >
+          <Upload className="w-5 h-5" />
+          Upload Payment Receipt
+        </label>
+        <input
+          id="upload-receipt"
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          className="hidden"
+        />
+        {uploadedImage && (
+          <div className="mt-3 flex items-center gap-3">
+            <div className="w-14 h-14 border-2 border-primary rounded-lg overflow-hidden">
+              <img src={uploadedImage} alt="Receipt" className="w-full h-full object-cover" />
+            </div>
+            <span className="text-xs text-primary font-semibold">✓ Receipt uploaded</span>
+          </div>
+        )}
+      </div>
+
+      {/* I Have Paid Button */}
+      <div className="w-full max-w-sm">
         <Button
           onClick={handleConfirmPayment}
-          disabled={isLoading}
-          className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl"
+          disabled={isLoading || !uploadedImage}
+          className="w-full h-14 bg-muted hover:bg-muted/80 text-muted-foreground font-bold text-base rounded-xl disabled:opacity-60"
+          variant="secondary"
         >
-          {isLoading ? <Loader2 className="w-6 h-6 animate-spin" /> : "CONFIRM PAYMENT"}
+          {isLoading ? (
+            <Loader2 className="w-5 h-5 animate-spin" />
+          ) : (
+            <>
+              <CheckSquare className="w-5 h-5 mr-2" />
+              I Have Paid
+            </>
+          )}
         </Button>
       </div>
+
+      <p className="text-xs text-muted-foreground mt-6">Bank Wallet © 2026</p>
     </div>
   );
 };
