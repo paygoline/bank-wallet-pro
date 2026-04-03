@@ -79,8 +79,8 @@ const PaymentConfirmation = () => {
         <DialogContent className="bg-card rounded-2xl shadow-2xl max-w-sm mx-auto border-border p-6 text-center">
           {/* Warning Icon */}
           <div className="flex justify-center mb-4">
-            <div className="w-20 h-20 rounded-full border-4 border-orange-400 flex items-center justify-center">
-              <AlertTriangle className="w-10 h-10 text-orange-400" />
+            <div className="w-20 h-20 rounded-full border-4 border-destructive/60 flex items-center justify-center">
+              <AlertTriangle className="w-10 h-10 text-destructive" />
             </div>
           </div>
 
