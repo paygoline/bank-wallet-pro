@@ -274,9 +274,10 @@ const BuyCode = () => {
           <div className="flex gap-2">
             <Button
               onClick={handleProceed}
+              disabled={isLoading}
               className="flex-1 h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-sm rounded-xl"
             >
-              Bank Transfer
+              {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : "Bank Transfer"}
             </Button>
             <Button
               onClick={() => {
@@ -293,13 +294,6 @@ const BuyCode = () => {
           </div>
         </div>
       )}
-
-      <Button
-        onClick={handleProceed}
-        className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg rounded-xl"
-      >
-        PROCEED TO PAYMENT
-      </Button>
       <div className="flex items-center justify-center gap-4 mt-4 pb-4">
         <div className="flex items-center gap-1">
           <ShieldCheck className="w-3 h-3 text-primary" />
