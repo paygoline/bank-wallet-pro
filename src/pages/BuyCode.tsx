@@ -63,6 +63,7 @@ const BuyCode = () => {
   const [accountName, setAccountName] = useState("");
   const [bankName, setBankName] = useState("");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -87,11 +88,20 @@ const BuyCode = () => {
       });
       return;
     }
+    
+    setIsLoading(true);
     localStorage.setItem("selected_miner_plan", selectedPlan);
     localStorage.setItem("selected_miner_price", selected?.price.toString() || "5700");
-    navigate("/payment-confirmation", {
-      state: { accountNumber, accountName, bankName, plan: selected },
-    });
+    localStorage.setItem("user_account_name", accountName);
+    localStorage.setItem("user_account_number", accountNumber);
+    localStorage.setItem("user_bank_name", bankName);
+    
+    setTimeout(() => {
+      setIsLoading(false);
+      navigate("/payment-confirmation", {
+        state: { accountNumber, accountName, bankName, plan: selected },
+      });
+    }, 2500);
   };
 
   return (
