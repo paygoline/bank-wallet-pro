@@ -205,6 +205,9 @@ const Admin = () => {
 
       <Tabs defaultValue="withdrawals" className="w-full">
         <TabsList className="w-full bg-card border border-border rounded-xl mb-4">
+          <TabsTrigger value="payments" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Payments
+          </TabsTrigger>
           <TabsTrigger value="withdrawals" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Withdrawals
           </TabsTrigger>
