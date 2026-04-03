@@ -4,9 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Check, X, Landmark, User, CreditCard, Save, Lock, Eye, EyeOff, Users, Wallet } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Check, X, Landmark, User, CreditCard, Save, Lock, Eye, EyeOff, Users, Wallet, Receipt, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 interface WithdrawalRequest {
   id: string;
