@@ -449,6 +449,15 @@ const Admin = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Receipt Viewer Dialog */}
+      <Dialog open={!!viewingReceipt} onOpenChange={() => setViewingReceipt(null)}>
+        <DialogContent className="bg-card rounded-2xl shadow-2xl max-w-sm mx-auto border-border p-2">
+          {viewingReceipt && (
+            <img src={viewingReceipt} alt="Payment Receipt" className="w-full rounded-xl" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
