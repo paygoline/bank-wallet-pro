@@ -23,6 +23,16 @@ interface WithdrawalRequest {
   status: "pending" | "approved" | "rejected";
 }
 
+interface PaymentRequest {
+  id: string;
+  userName: string;
+  phone: string;
+  plan: string;
+  amount: number;
+  receipt: string;
+  date: string;
+  status: "pending" | "approved" | "rejected";
+}
 const ADMIN_PIN = "258025";
 
 const Admin = () => {
