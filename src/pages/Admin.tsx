@@ -219,6 +219,79 @@ const Admin = () => {
           </TabsTrigger>
         </TabsList>
 
+        {/* Payments Tab */}
+        <TabsContent value="payments" className="space-y-3">
+          {paymentRequests.length === 0 ? (
+            <div className="text-center py-16">
+              <Receipt className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No payment submissions yet</p>
+            </div>
+          ) : (
+            paymentRequests.map((req) => (
+              <Card key={req.id} className="border-border overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{req.userName}</p>
+                      <p className="text-[10px] text-muted-foreground">{req.date}</p>
+                    </div>
+                    <Badge className={`text-[10px] ${
+                      req.status === "pending" ? "bg-yellow-500/15 text-yellow-500 border-yellow-500/30" :
+                      req.status === "approved" ? "bg-primary/15 text-primary border-primary/30" :
+                      "bg-destructive/15 text-destructive border-destructive/30"
+                    }`}>
+                      {req.status.toUpperCase()}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1 mb-3 text-xs text-muted-foreground">
+                    <p><span className="text-foreground font-medium">Plan:</span> {req.plan}</p>
+                    <p><span className="text-foreground font-medium">Amount:</span> ₦{req.amount.toLocaleString()}</p>
+                    {req.phone && <p><span className="text-foreground font-medium">Phone:</span> {req.phone}</p>}
+                  </div>
+
+                  {/* Receipt Preview */}
+                  <button
+                    onClick={() => setViewingReceipt(req.receipt)}
+                    className="w-full h-32 rounded-lg border border-border overflow-hidden mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <img src={req.receipt} alt="Payment Receipt" className="w-full h-full object-cover" />
+                  </button>
+                  <button
+                    onClick={() => setViewingReceipt(req.receipt)}
+                    className="flex items-center gap-1 text-[10px] text-primary font-semibold mb-3"
+                  >
+                    <Image className="w-3 h-3" />
+                    View Full Receipt
+                  </button>
+
+                  {req.status === "pending" && (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleApprovePayment(req.id)}
+                        size="sm"
+                        className="flex-1 h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold rounded-lg"
+                      >
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => handleRejectPayment(req.id)}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-9 border-destructive text-destructive hover:bg-destructive/5 text-xs font-semibold rounded-lg"
+                      >
+                        <X className="w-3.5 h-3.5 mr-1" />
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+
         {/* Withdrawals Tab */}
         <TabsContent value="withdrawals" className="space-y-3">
           {withdrawalRequests.length === 0 ? (
