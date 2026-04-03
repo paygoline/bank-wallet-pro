@@ -4,9 +4,13 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, ShieldCheck, Check, X, Landmark, User, CreditCard, Save, Lock, Eye, EyeOff, Users, Wallet } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Check, X, Landmark, User, CreditCard, Save, Lock, Eye, EyeOff, Users, Wallet, Receipt, Image } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+} from "@/components/ui/dialog";
 
 interface WithdrawalRequest {
   id: string;
@@ -19,6 +23,16 @@ interface WithdrawalRequest {
   status: "pending" | "approved" | "rejected";
 }
 
+interface PaymentRequest {
+  id: string;
+  userName: string;
+  phone: string;
+  plan: string;
+  amount: number;
+  receipt: string;
+  date: string;
+  status: "pending" | "approved" | "rejected";
+}
 const ADMIN_PIN = "258025";
 
 const Admin = () => {
@@ -29,7 +43,9 @@ const Admin = () => {
   const [showPin, setShowPin] = useState(false);
 
   const [withdrawalRequests, setWithdrawalRequests] = useState<WithdrawalRequest[]>([]);
+  const [paymentRequests, setPaymentRequests] = useState<PaymentRequest[]>([]);
   const [registeredUsers, setRegisteredUsers] = useState<any[]>([]);
+  const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
 
   // Payment account details
   const [paymentAccNumber, setPaymentAccNumber] = useState(() =>
@@ -45,6 +61,8 @@ const Admin = () => {
   useEffect(() => {
     const saved = localStorage.getItem("withdrawal_requests");
     if (saved) setWithdrawalRequests(JSON.parse(saved));
+    const payments = localStorage.getItem("payment_requests");
+    if (payments) setPaymentRequests(JSON.parse(payments));
     const users = localStorage.getItem("registered_users");
     if (users) setRegisteredUsers(JSON.parse(users));
   }, []);
@@ -94,6 +112,32 @@ const Admin = () => {
     toast({ title: "❌ Rejected", description: "Withdrawal request has been rejected.", duration: 3000, className: "bg-card text-foreground border-destructive/30 rounded-xl" });
   };
 
+  const handleApprovePayment = (id: string) => {
+    const updated = paymentRequests.map(r =>
+      r.id === id ? { ...r, status: "approved" as const } : r
+    );
+    setPaymentRequests(updated);
+    localStorage.setItem("payment_requests", JSON.stringify(updated));
+
+    // Activate the user's miner
+    const req = paymentRequests.find(r => r.id === id);
+    if (req) {
+      localStorage.setItem("miner_activated", "true");
+      localStorage.setItem("activation_date", new Date().toISOString());
+    }
+
+    toast({ title: "✅ Payment Approved", description: "User's miner has been activated.", duration: 3000, className: "bg-card text-foreground border-primary/30 rounded-xl" });
+  };
+
+  const handleRejectPayment = (id: string) => {
+    const updated = paymentRequests.map(r =>
+      r.id === id ? { ...r, status: "rejected" as const } : r
+    );
+    setPaymentRequests(updated);
+    localStorage.setItem("payment_requests", JSON.stringify(updated));
+    toast({ title: "❌ Payment Rejected", description: "Payment has been rejected.", duration: 3000, className: "bg-card text-foreground border-destructive/30 rounded-xl" });
+  };
+
   const handleSavePaymentDetails = () => {
     localStorage.setItem("admin_payment_acc_number", paymentAccNumber);
     localStorage.setItem("admin_payment_acc_name", paymentAccName);
@@ -102,6 +146,7 @@ const Admin = () => {
   };
 
   const pendingCount = withdrawalRequests.filter(r => r.status === "pending").length;
+  const pendingPayments = paymentRequests.filter(r => r.status === "pending").length;
 
   if (!isAuthenticated) {
     return (
@@ -154,12 +199,15 @@ const Admin = () => {
           <p className="text-xs text-muted-foreground">Manage withdrawals & settings</p>
         </div>
         <Badge variant="outline" className="border-primary text-primary">
-          {pendingCount} pending
+          {pendingCount + pendingPayments} pending
         </Badge>
       </div>
 
       <Tabs defaultValue="withdrawals" className="w-full">
         <TabsList className="w-full bg-card border border-border rounded-xl mb-4">
+          <TabsTrigger value="payments" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+            Payments
+          </TabsTrigger>
           <TabsTrigger value="withdrawals" className="flex-1 rounded-lg text-xs font-semibold data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
             Withdrawals
           </TabsTrigger>
@@ -170,6 +218,79 @@ const Admin = () => {
             Settings
           </TabsTrigger>
         </TabsList>
+
+        {/* Payments Tab */}
+        <TabsContent value="payments" className="space-y-3">
+          {paymentRequests.length === 0 ? (
+            <div className="text-center py-16">
+              <Receipt className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No payment submissions yet</p>
+            </div>
+          ) : (
+            paymentRequests.map((req) => (
+              <Card key={req.id} className="border-border overflow-hidden">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{req.userName}</p>
+                      <p className="text-[10px] text-muted-foreground">{req.date}</p>
+                    </div>
+                    <Badge className={`text-[10px] ${
+                      req.status === "pending" ? "bg-yellow-500/15 text-yellow-500 border-yellow-500/30" :
+                      req.status === "approved" ? "bg-primary/15 text-primary border-primary/30" :
+                      "bg-destructive/15 text-destructive border-destructive/30"
+                    }`}>
+                      {req.status.toUpperCase()}
+                    </Badge>
+                  </div>
+
+                  <div className="space-y-1 mb-3 text-xs text-muted-foreground">
+                    <p><span className="text-foreground font-medium">Plan:</span> {req.plan}</p>
+                    <p><span className="text-foreground font-medium">Amount:</span> ₦{req.amount.toLocaleString()}</p>
+                    {req.phone && <p><span className="text-foreground font-medium">Phone:</span> {req.phone}</p>}
+                  </div>
+
+                  {/* Receipt Preview */}
+                  <button
+                    onClick={() => setViewingReceipt(req.receipt)}
+                    className="w-full h-32 rounded-lg border border-border overflow-hidden mb-3 cursor-pointer hover:opacity-80 transition-opacity"
+                  >
+                    <img src={req.receipt} alt="Payment Receipt" className="w-full h-full object-cover" />
+                  </button>
+                  <button
+                    onClick={() => setViewingReceipt(req.receipt)}
+                    className="flex items-center gap-1 text-[10px] text-primary font-semibold mb-3"
+                  >
+                    <Image className="w-3 h-3" />
+                    View Full Receipt
+                  </button>
+
+                  {req.status === "pending" && (
+                    <div className="flex gap-2">
+                      <Button
+                        onClick={() => handleApprovePayment(req.id)}
+                        size="sm"
+                        className="flex-1 h-9 bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-semibold rounded-lg"
+                      >
+                        <Check className="w-3.5 h-3.5 mr-1" />
+                        Approve
+                      </Button>
+                      <Button
+                        onClick={() => handleRejectPayment(req.id)}
+                        size="sm"
+                        variant="outline"
+                        className="flex-1 h-9 border-destructive text-destructive hover:bg-destructive/5 text-xs font-semibold rounded-lg"
+                      >
+                        <X className="w-3.5 h-3.5 mr-1" />
+                        Reject
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
 
         {/* Withdrawals Tab */}
         <TabsContent value="withdrawals" className="space-y-3">
@@ -328,6 +449,15 @@ const Admin = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Receipt Viewer Dialog */}
+      <Dialog open={!!viewingReceipt} onOpenChange={() => setViewingReceipt(null)}>
+        <DialogContent className="bg-card rounded-2xl shadow-2xl max-w-sm mx-auto border-border p-2">
+          {viewingReceipt && (
+            <img src={viewingReceipt} alt="Payment Receipt" className="w-full rounded-xl" />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
