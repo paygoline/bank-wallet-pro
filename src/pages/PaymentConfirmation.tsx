@@ -162,7 +162,7 @@ const PaymentConfirmation = () => {
       {/* Notice text */}
       <div className="w-full max-w-sm mb-6 text-center">
         <p className="text-sm text-muted-foreground">
-          <span className="text-orange-400 font-bold">⚠️</span> He'll dear user copy the{" "}
+          <span className="text-destructive font-bold">⚠️</span> He'll dear user copy the{" "}
           <span className="font-bold text-foreground">website account details</span> for this payment.
         </p>
         <p className="text-xs text-muted-foreground mt-1">
