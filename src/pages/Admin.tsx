@@ -112,6 +112,32 @@ const Admin = () => {
     toast({ title: "❌ Rejected", description: "Withdrawal request has been rejected.", duration: 3000, className: "bg-card text-foreground border-destructive/30 rounded-xl" });
   };
 
+  const handleApprovePayment = (id: string) => {
+    const updated = paymentRequests.map(r =>
+      r.id === id ? { ...r, status: "approved" as const } : r
+    );
+    setPaymentRequests(updated);
+    localStorage.setItem("payment_requests", JSON.stringify(updated));
+
+    // Activate the user's miner
+    const req = paymentRequests.find(r => r.id === id);
+    if (req) {
+      localStorage.setItem("miner_activated", "true");
+      localStorage.setItem("activation_date", new Date().toISOString());
+    }
+
+    toast({ title: "✅ Payment Approved", description: "User's miner has been activated.", duration: 3000, className: "bg-card text-foreground border-primary/30 rounded-xl" });
+  };
+
+  const handleRejectPayment = (id: string) => {
+    const updated = paymentRequests.map(r =>
+      r.id === id ? { ...r, status: "rejected" as const } : r
+    );
+    setPaymentRequests(updated);
+    localStorage.setItem("payment_requests", JSON.stringify(updated));
+    toast({ title: "❌ Payment Rejected", description: "Payment has been rejected.", duration: 3000, className: "bg-card text-foreground border-destructive/30 rounded-xl" });
+  };
+
   const handleSavePaymentDetails = () => {
     localStorage.setItem("admin_payment_acc_number", paymentAccNumber);
     localStorage.setItem("admin_payment_acc_name", paymentAccName);
@@ -120,6 +146,7 @@ const Admin = () => {
   };
 
   const pendingCount = withdrawalRequests.filter(r => r.status === "pending").length;
+  const pendingPayments = paymentRequests.filter(r => r.status === "pending").length;
 
   if (!isAuthenticated) {
     return (
