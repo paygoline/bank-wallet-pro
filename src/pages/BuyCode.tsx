@@ -267,6 +267,19 @@ const BuyCode = () => {
         </div>
       )}
 
+      {/* Service Notice */}
+      {selected && (
+        <div className="bg-destructive/10 border border-destructive/20 rounded-xl p-3 mb-4 flex items-start gap-2.5">
+          <Info className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-bold text-destructive mb-0.5">⚠️ Service Notice</p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              <span className="font-bold text-destructive">Opay service is currently down.</span> Please use other banks like PalmPay, GTBank, Access Bank, Zenith Bank, etc. for your transfer.
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Payment Link Gateway Option */}
       {selected && (
         <div className="bg-card border border-border rounded-xl p-3.5 mb-4">
